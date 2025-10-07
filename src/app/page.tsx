@@ -2,9 +2,17 @@
 
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { EnrollmentModal } from "@/components/enrollment-modal"
+import { useRouter } from "next/navigation"
 import React from "react"
 
 export default function HomePage() {
+  const router = useRouter();
+  const [enrollmentModalOpen, setEnrollmentModalOpen] = React.useState(false);
+
+  function handleEnrollmentSuccess(enrollmentId: string) {
+    router.push(`/success?id=${enrollmentId}`);
+  }
   React.useEffect(() => {
     const observerOptions = {
       threshold: 0.1,
@@ -67,19 +75,19 @@ export default function HomePage() {
             <div className="hidden md:flex items-center space-x-8">
               <a
                 href="#"
-                className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-serif hover-glow"
+                className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 Courses
               </a>
               <a
                 href="#"
-                className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-serif hover-glow"
+                className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 How it works
               </a>
               <a
                 href="#"
-                className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-serif hover-glow"
+                className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 Contact
               </a>
@@ -87,7 +95,7 @@ export default function HomePage() {
 
             {/* Join Now Button */}
             <Button className="btn-alive bg-white text-indigo-700 font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100 transition-all duration-300 border-0">
-              Join Now
+              Enroll Now
             </Button>
           </nav>
         </header>
@@ -109,7 +117,7 @@ export default function HomePage() {
                 variant="default"
                 className="btn-alive bg-white text-indigo-700 py-5 px-10 rounded-full hover:bg-gray-100 transition-all duration-300 border-0 animate-fade-in-up-button text-lg font-medium"
               >
-                Join the Waitlist
+                Enroll In Spark 101
               </Button>
             </div>
           </div>
@@ -266,8 +274,11 @@ export default function HomePage() {
                   how to think like AI.
                 </p>
               </div>
-              <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 btn-alive">
-                → Enroll in Spark 101
+              <Button 
+                onClick={() => setEnrollmentModalOpen(true)}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 btn-alive"
+              >
+                Enroll in Spark 101
               </Button>
             </div>
 
@@ -309,7 +320,7 @@ export default function HomePage() {
                 </p>
               </div>
               <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-700 text-white py-3 rounded-full hover:from-indigo-700 hover:to-purple-800 transition-all duration-300 btn-alive shadow-lg">
-                → Join Framework 101
+                Starting Soon!
               </Button>
             </div>
 
@@ -323,7 +334,7 @@ export default function HomePage() {
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Summit 101</h3>
               <p className="text-blue-600 font-medium mb-4">The Advanced AI Integration Workshop</p>
               <div className="mb-6">
-                <p className="text-sm text-gray-600 mb-1">Duration: 4–6 hours (Team or enterprise sessions)</p>
+                <p className="text-sm text-gray-600 mb-1">Duration: 4-6 hours (Team or enterprise sessions)</p>
                 <p className="text-3xl font-medium text-gray-900">Coming Soon!</p>
                 <p className="text-sm text-gray-600 mt-1">Pricing to be announced</p>
               </div>
@@ -350,7 +361,7 @@ export default function HomePage() {
                 </p>
               </div>
               <Button className="w-full bg-white text-blue-700 border-2 border-blue-600 py-3 rounded-full hover:bg-blue-50 transition-all duration-300 btn-alive">
-                → Apply for Summit 101
+                Starting Soon!
               </Button>
             </div>
           </div>
@@ -371,8 +382,8 @@ export default function HomePage() {
           </p>
           {/* Added CTA button */}
           <div className="flex flex-col items-center gap-3 mt-12">
-            <Button className="bg-white text-indigo-700 font-semibold px-8 py-3 rounded-full hover:bg-gray-100 transition-all duration-300 border-0 btn-alive text-lg">
-              Enroll in Spark 101 →
+            <Button className="bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-gray-100 transition-all duration-300 border-0 btn-alive text-lg">
+              Enroll in Spark 101
             </Button>
             {/* Added small subtitle */}
             <p className="text-gray-500 text-sm max-w-md">
@@ -391,11 +402,18 @@ export default function HomePage() {
             </div>
             <div className="text-center">
               <p className="text-gray-400 text-sm mb-2">hello@nxtai101.com</p>
-              <p className="text-gray-500 text-xs">© 2025 NXTAI101. All rights reserved.</p>
+              <p className="text-gray-500 text-xs">© 2025 Nxtailabs. All rights reserved.</p>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Enrollment Modal */}
+      <EnrollmentModal
+        open={enrollmentModalOpen}
+        onOpenChange={setEnrollmentModalOpen}
+        onSuccess={handleEnrollmentSuccess}
+      />
     </div>
   )
 }
