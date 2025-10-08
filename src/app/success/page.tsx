@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import Link from 'next/link';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -12,7 +11,6 @@ function SuccessContent() {
   const enrollmentId = searchParams.get('id');
 
   const [loading, setLoading] = useState(true);
-  const [enrollment, setEnrollment] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,7 +73,7 @@ function SuccessContent() {
               🎉 Payment Successful!
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              You're enrolled in Spark 101
+              You&apos;re enrolled in Spark 101
             </p>
 
             {/* Confirmation Details */}
@@ -87,19 +85,19 @@ function SuccessContent() {
                 <li className="flex items-start gap-3">
                   <span className="text-indigo-600 mt-1">📧</span>
                   <span>
-                    <strong>Check your email</strong> - You'll receive a confirmation with your Zoom link
+                    <strong>Check your email</strong> - You&apos;ll receive a confirmation with your Zoom link
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-indigo-600 mt-1">📅</span>
                   <span>
-                    <strong>Add to calendar</strong> - We've attached a calendar invite to your email
+                    <strong>Add to calendar</strong> - We&apos;ve attached a calendar invite to your email
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-indigo-600 mt-1">⏰</span>
                   <span>
-                    <strong>Get a reminder</strong> - We'll send you a reminder 24 hours before the session
+                    <strong>Get a reminder</strong> - We&apos;ll send you a reminder 24 hours before the session
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -115,7 +113,7 @@ function SuccessContent() {
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8 text-left">
               <h3 className="font-semibold text-yellow-900 mb-3">💡 Pro Tips</h3>
               <ul className="space-y-2 text-sm text-yellow-800">
-                <li>• Check your spam folder if you don't see the email</li>
+                <li>• Check your spam folder if you don&apos;t see the email</li>
                 <li>• Test your Zoom setup before the session</li>
                 <li>• Prepare questions you want to ask</li>
                 <li>• Join from a quiet space with good internet</li>
@@ -141,7 +139,7 @@ function SuccessContent() {
 
             {/* Support Note */}
             <p className="text-sm text-gray-500 mt-8">
-              Didn't receive the email?{' '}
+              Didn&apos;t receive the email?{' '}
               <a
                 href="mailto:hello@nxtai101.com"
                 className="text-indigo-600 hover:underline"

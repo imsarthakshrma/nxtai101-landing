@@ -2,9 +2,10 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 
 // Initialize Razorpay instance (server-side only)
+// Use placeholder values if env vars not set (for build time)
 export const razorpayInstance = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret',
 });
 
 /**
@@ -20,9 +21,14 @@ export function verifyPaymentSignature(
   signature: string
 ): boolean {
   try {
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!secret) {
+      console.error('RAZORPAY_KEY_SECRET not configured');
+      return false;
+    }
     const text = `${orderId}|${paymentId}`;
     const generated_signature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac('sha256', secret)
       .update(text)
       .digest('hex');
 
@@ -44,8 +50,13 @@ export function verifyWebhookSignature(
   signature: string
 ): boolean {
   try {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (!secret) {
+      console.error('RAZORPAY_WEBHOOK_SECRET not configured');
+      return false;
+    }
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET!)
+      .createHmac('sha256', secret)
       .update(body)
       .digest('hex');
 

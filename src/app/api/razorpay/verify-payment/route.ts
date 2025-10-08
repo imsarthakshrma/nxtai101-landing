@@ -119,12 +119,13 @@ export async function POST(request: NextRequest) {
       order_id: razorpay_order_id,
       payment_id: razorpay_payment_id,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error verifying payment:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      {
+      { 
         error: 'Payment verification failed',
-        details: error.message,
+        details: errorMessage 
       },
       { status: 500 }
     );

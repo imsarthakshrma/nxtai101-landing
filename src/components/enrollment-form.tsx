@@ -81,7 +81,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
 
       // Open Razorpay checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
         amount: orderData.order.amount,
         currency: 'INR',
         name: 'NXTAI101',

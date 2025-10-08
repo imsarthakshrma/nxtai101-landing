@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Webhook error:', error);
     return NextResponse.json(
       { error: 'Webhook processing failed' },
@@ -155,7 +155,6 @@ async function handlePaymentFailed(event: RazorpayWebhookEvent) {
 }
 
 async function handleOrderPaid(event: RazorpayWebhookEvent) {
-  const payment = event.payload.payment.entity;
   const order = event.payload.order?.entity;
   console.log('Order paid:', order?.id);
 
