@@ -33,8 +33,9 @@ export function SessionSelector({ onSelectSession }: SessionSelectorProps) {
       }
 
       setSessions(data.sessions);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch sessions';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

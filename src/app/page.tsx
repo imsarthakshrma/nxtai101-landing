@@ -257,7 +257,7 @@ export default function HomePage() {
                 <p className="text-3xl font-medium text-gray-900">₹199</p>
               </div>
               <div className="mb-6">
-                <p className="font-semibold text-gray-900 mb-3">You'll Learn:</p>
+                <p className="font-semibold text-gray-900 mb-3">You&apos;ll Learn:</p>
                 <ul className="space-y-2 text-gray-700 text-sm">
                   <li className="flex items-start gap-2">
                     <span className="text-purple-600 mt-1">•</span>
@@ -302,7 +302,7 @@ export default function HomePage() {
                 <p className="text-sm text-gray-600 mt-1">Pricing to be announced</p>
               </div>
               <div className="mb-6">
-                <p className="font-semibold text-gray-900 mb-3">You'll Learn:</p>
+                <p className="font-semibold text-gray-900 mb-3">You&apos;ll Learn:</p>
                 <ul className="space-y-2 text-gray-700 text-sm">
                   <li className="flex items-start gap-2">
                     <span className="text-indigo-600 mt-1">•</span>
@@ -344,7 +344,7 @@ export default function HomePage() {
                 <p className="text-sm text-gray-600 mt-1">Pricing to be announced</p>
               </div>
               <div className="mb-6">
-                <p className="font-semibold text-gray-900 mb-3">You'll Learn:</p>
+                <p className="font-semibold text-gray-900 mb-3">You&apos;ll Learn:</p>
                 <ul className="space-y-2 text-gray-700 text-sm">
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 mt-1">•</span>
