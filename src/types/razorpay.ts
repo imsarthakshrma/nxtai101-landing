@@ -69,7 +69,7 @@ export interface RazorpayPaymentEntity {
   error_source: string | null;
   error_step: string | null;
   error_reason: string | null;
-  acquirer_data: Record<string, any>;
+  acquirer_data: Record<string, unknown>;
   created_at: number;
 }
 
@@ -98,6 +98,6 @@ export interface CheckoutOptions {
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: unknown;
   }
 }

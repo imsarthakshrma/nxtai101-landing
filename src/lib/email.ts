@@ -192,9 +192,10 @@ export async function sendConfirmationEmail(
     }
 
     return { success: true, emailId: data?.id };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Email send error:', error);
-    return { success: false, error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -255,8 +256,9 @@ export async function sendReminderEmail(
     }
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reminder email error:', error);
-    return { success: false, error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: errorMessage };
   }
 }

@@ -18,6 +18,36 @@ interface EnrollmentFormProps {
   onCancel: () => void;
 }
 
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  image: string;
+  order_id: string;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  theme: {
+    color: string;
+  };
+  handler: (response: unknown) => Promise<void>;
+  modal: {
+    ondismiss: () => void;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+interface WindowWithRazorpay extends Window {
+  Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+}
+
 export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormProps) {
   const [formData, setFormData] = useState({
     name: '',
@@ -80,7 +110,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
       }
 
       // Open Razorpay checkout
-      const options = {
+      const options: RazorpayOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
         amount: orderData.order.amount,
         currency: 'INR',
@@ -96,7 +126,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
         theme: {
           color: '#6366f1',
         },
-        handler: async (response: any) => {
+        handler: async (response: unknown) => {
           try {
             // Verify payment
             const verifyRes = await fetch('/api/razorpay/verify-payment', {
@@ -113,8 +143,9 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
             } else {
               throw new Error('Payment verification failed');
             }
-          } catch (error: any) {
-            toast.error(error.message || 'Payment verification failed');
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
+            toast.error(errorMessage);
           }
         },
         modal: {
@@ -125,11 +156,12 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
+      const razorpay = new (window as unknown as WindowWithRazorpay).Razorpay(options);
       razorpay.open();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Payment error:', error);
-      toast.error(error.message || 'Payment failed');
+      const errorMessage = error instanceof Error ? error.message : 'Payment failed';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -137,7 +169,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
 
   function loadRazorpayScript(): Promise<boolean> {
     return new Promise((resolve) => {
-      if ((window as any).Razorpay) {
+      if ((window as { Razorpay?: unknown }).Razorpay) {
         resolve(true);
         return;
       }
