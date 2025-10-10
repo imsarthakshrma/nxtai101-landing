@@ -2,18 +2,18 @@
 
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-// import { EnrollmentModal } from "@/components/enrollment-modal"
-// import { useRouter } from "next/navigation"
+import { EnrollmentModal } from "@/components/enrollment-modal"
+import { useRouter } from "next/navigation"
 import React from "react"
 import Link from "next/link"
 
 export default function HomePage() {
-  // const router = useRouter();
-  // const [enrollmentModalOpen, setEnrollmentModalOpen] = React.useState(false);
+  const router = useRouter();
+  const [enrollmentModalOpen, setEnrollmentModalOpen] = React.useState(false);
 
-  // function handleEnrollmentSuccess(enrollmentId: string) {
-  //   router.push(`/success?id=${enrollmentId}`);
-  // }
+  function handleEnrollmentSuccess(enrollmentId: string) {
+    router.push(`/success?id=${enrollmentId}`);
+  }
   React.useEffect(() => {
     const observerOptions = {
       threshold: 0.1,
@@ -280,10 +280,10 @@ export default function HomePage() {
                 </p>
               </div>
               <Button 
-                disabled
-                className="w-full bg-gray-400 text-gray-700 py-3 rounded-full cursor-not-allowed"
+                onClick={() => setEnrollmentModalOpen(true)}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 btn-alive"
               >
-                Available Soon!
+                Enroll in Spark 101
               </Button>
             </div>
 
@@ -433,12 +433,12 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* Enrollment Modal - Disabled for now, will enable after backend setup */}
-      {/* <EnrollmentModal
+      {/* Enrollment Modal */}
+      <EnrollmentModal
         open={enrollmentModalOpen}
         onOpenChange={setEnrollmentModalOpen}
         onSuccess={handleEnrollmentSuccess}
-      /> */}
+      />
     </div>
   )
 }

@@ -8,8 +8,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { session_id, amount, user_info } = body;
 
+    console.log('Create order request:', { session_id, amount, user_info });
+
     // Validate required fields
     if (!session_id || !amount || !user_info) {
+      console.error('Missing required fields:', { session_id, amount, user_info });
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -19,6 +22,7 @@ export async function POST(request: NextRequest) {
     const { name, email, phone, company, linkedin_url } = user_info;
 
     if (!name || !email || !phone) {
+      console.error('Missing user info:', { name, email, phone });
       return NextResponse.json(
         { error: 'Name, email, and phone are required' },
         { status: 400 }
@@ -49,17 +53,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already enrolled in this session
+    // Check if user already has a SUCCESSFUL enrollment in this session
     const { data: existingEnrollment } = await supabaseAdmin
       .from('enrollments')
-      .select('id')
+      .select('id, payment_status')
       .eq('session_id', session_id)
       .eq('email', email)
-      .single();
+      .eq('payment_status', 'success')
+      .maybeSingle();
 
     if (existingEnrollment) {
       return NextResponse.json(
-        { error: 'Already enrolled in this session' },
+        { error: 'You are already enrolled in this session' },
         { status: 400 }
       );
     }
