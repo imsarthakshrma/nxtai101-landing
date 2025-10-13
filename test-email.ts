@@ -73,10 +73,10 @@ async function testEmail() {
       console.log('✅ Email sent successfully!');
       console.log('📬 Email ID:', result.emailId);
       console.log('\n📋 What to check in your inbox:');
-      console.log('  1. Subject: "You\'re Enrolled in Spark 101 - Test Session 🎉"');
+      console.log('  1. Subject: "Thankyou for enrolling in Spark 101 - Monday, 20 October 2025"');
       console.log('  2. Greeting: "Hi John Doe,"');
       console.log('  3. Session details with date and time');
-      console.log('  4. Zoom link button');
+      console.log('  4. Meeting link button');
       console.log('  5. Payment confirmation (₹199)');
       console.log('  6. Calendar invite attachment');
       console.log('\n💡 Check your spam folder if you don\'t see it!');

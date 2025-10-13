@@ -73,10 +73,10 @@ export async function GET() {
         emailId: result.emailId,
         sentTo: testEnrollment.email,
         checkList: [
-          'Subject: "You\'re Enrolled in Spark 101 - Test Session 🎉"',
+          'Subject: "Thankyou for enrolling in Spark 101 - Monday, 20 October 2025"',
           'Greeting: "Hi John Doe,"',
           'Session details with date and time',
-          'Zoom link button',
+          'Meeting link button',
           'Payment confirmation (₹199)',
           'Calendar invite attachment',
         ],
