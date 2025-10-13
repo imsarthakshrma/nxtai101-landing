@@ -70,36 +70,47 @@ export function SessionSelector({ onSelectSession }: SessionSelectorProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="space-y-4">
       {sessions.map((session) => (
         <div
           key={session.id}
-          className="border border-gray-200 rounded-lg p-6 hover:border-indigo-400 transition-colors"
+          className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-indigo-500 hover:shadow-lg transition-all duration-300"
         >
-          <h3 className="font-semibold text-lg text-gray-900 mb-2">
-            {session.title}
-          </h3>
-          <p className="text-gray-600 mb-1">
-            📅 {format(new Date(session.session_date), 'EEEE, MMMM d, yyyy')}
-          </p>
-          <p className="text-gray-600 mb-3">
-            🕐 {format(new Date(session.session_date), 'h:mm a')} IST
-          </p>
-          <p className="text-sm text-gray-500 mb-4">
-            {session.is_full ? (
-              <span className="text-red-600 font-medium">Session Full</span>
-            ) : (
-              <span>
-                {session.available_seats} seats available (out of {session.max_capacity})
-              </span>
-            )}
-          </p>
+          <div className="mb-4">
+            <h3 className="font-bold text-xl text-gray-900 mb-3">
+              {session.title}
+            </h3>
+            <div className="space-y-2">
+              <div className="flex items-center text-gray-700">
+                <span className="text-lg mr-2">📅</span>
+                <span className="font-medium">
+                  {format(new Date(session.session_date), 'EEEE, MMMM d, yyyy')}
+                </span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <span className="text-lg mr-2">🕐</span>
+                <span className="font-medium">
+                  {format(new Date(session.session_date), 'h:mm a')} IST
+                </span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <span className="text-lg mr-2">👥</span>
+                {session.is_full ? (
+                  <span className="text-red-600 font-semibold">Session Full</span>
+                ) : (
+                  <span className="font-medium">
+                    {session.available_seats} seats available
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
           <Button
             onClick={() => onSelectSession(session)}
             disabled={session.is_full}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {session.is_full ? 'Full' : 'Select This Session'}
+            {session.is_full ? 'Session Full' : 'Select This Session'}
           </Button>
         </div>
       ))}

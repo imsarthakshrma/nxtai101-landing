@@ -36,11 +36,14 @@ export function EnrollmentModal({ open, onOpenChange, onSuccess }: EnrollmentMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-gray-50 to-white">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-3xl font-bold text-gray-900">
             {selectedSession ? 'Complete Your Enrollment' : 'Select a Session'}
           </DialogTitle>
+          {!selectedSession && (
+            <p className="text-gray-600 mt-2">Choose your preferred session time</p>
+          )}
         </DialogHeader>
 
         {!selectedSession ? (

@@ -25,7 +25,7 @@ DTSTAMP:${formatICSDate(new Date())}
 DTSTART:${formatICSDate(startDate)}
 DTEND:${formatICSDate(endDate)}
 SUMMARY:Spark 101 - NXTAI101
-DESCRIPTION:Join us for Spark 101\\n\\nZoom Link: ${session.zoom_link}${session.zoom_meeting_id ? `\\nMeeting ID: ${session.zoom_meeting_id}` : ''}${session.zoom_passcode ? `\\nPasscode: ${session.zoom_passcode}` : ''}
+DESCRIPTION:Join us for Spark 101\n\nMeeting Link: ${session.zoom_link}${session.zoom_meeting_id ? `\nMeeting Code: ${session.zoom_meeting_id}` : ''}${session.zoom_passcode ? `\nPIN: ${session.zoom_passcode}` : ''}
 LOCATION:${session.zoom_link}
 STATUS:CONFIRMED
 SEQUENCE:0
@@ -79,82 +79,56 @@ function generateConfirmationEmailHTML(enrollment: Enrollment, session: Session)
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-    .header h1 { margin: 0; font-size: 28px; }
-    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-    .session-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
-    .session-details h2 { margin-top: 0; color: #667eea; font-size: 20px; }
-    .session-details p { margin: 8px 0; }
-    .zoom-section { margin: 25px 0; }
-    .zoom-button { background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 15px 0; font-weight: bold; }
-    .zoom-credentials { background: #e0e7ff; padding: 15px; border-radius: 6px; margin: 15px 0; }
-    .what-to-expect { margin: 25px 0; }
-    .what-to-expect ul { padding-left: 20px; }
-    .what-to-expect li { margin: 8px 0; }
-    .pro-tip { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 6px; margin: 20px 0; }
-    .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; border-top: 1px solid #e5e7eb; margin-top: 30px; }
-    .footer a { color: #667eea; text-decoration: none; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #1f2937; margin: 0; padding: 0; background: #f9fafb; }
+    .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 8px; overflow: hidden; }
+    .header { background: #4f46e5; color: white; padding: 24px; text-align: center; }
+    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+    .content { padding: 32px; }
+    .content p { margin: 0 0 16px 0; color: #4b5563; }
+    .session-box { background: #f3f4f6; border-left: 3px solid #4f46e5; padding: 16px; margin: 24px 0; border-radius: 4px; }
+    .session-box p { margin: 4px 0; color: #1f2937; }
+    .session-box strong { color: #1f2937; }
+    .button { display: inline-block; background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    .credentials { background: #eff6ff; padding: 12px; border-radius: 4px; margin: 16px 0; font-size: 14px; }
+    .footer { text-align: center; padding: 24px; color: #9ca3af; font-size: 13px; border-top: 1px solid #e5e7eb; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎉 Welcome to NXTAI101!</h1>
+      <h1>Enrollment Confirmed</h1>
     </div>
     
     <div class="content">
-      <p>Hi <strong>${enrollment.name}</strong>,</p>
+      <p>Hi ${enrollment.name},</p>
       
-      <p>Your payment of <strong>₹${enrollment.amount_paid / 100}</strong> for Spark 101 is confirmed.</p>
+      <p>Your enrollment for Spark 101 is confirmed. Payment of ₹${enrollment.amount_paid / 100} received.</p>
       
-      <div class="session-details">
-        <h2>📅 Session Details</h2>
-        <p><strong>Date:</strong> ${sessionDate}</p>
-        <p><strong>Time:</strong> ${sessionTime} IST</p>
-        <p><strong>Duration:</strong> ${session.duration_minutes} minutes</p>
+      <div class="session-box">
+        <p><strong>Session Details</strong></p>
+        <p>${sessionDate}</p>
+        <p>${sessionTime} IST · ${session.duration_minutes} minutes</p>
       </div>
       
-      <div class="zoom-section">
-        <h3 style="color: #667eea;">🔗 Join via Zoom</h3>
-        <a href="${session.zoom_link}" class="zoom-button">Join Zoom Session</a>
-        
-        ${session.zoom_meeting_id || session.zoom_passcode ? `
-        <div class="zoom-credentials">
-          ${session.zoom_meeting_id ? `<p><strong>Meeting ID:</strong> ${session.zoom_meeting_id}</p>` : ''}
-          ${session.zoom_passcode ? `<p><strong>Passcode:</strong> ${session.zoom_passcode}</p>` : ''}
-        </div>
-        ` : ''}
+      <a href="${session.zoom_link}" class="button">Join Session</a>
+      
+      ${session.zoom_meeting_id || session.zoom_passcode ? `
+      <div class="credentials">
+        ${session.zoom_meeting_id ? `<p><strong>Meeting ID:</strong> ${session.zoom_meeting_id}</p>` : ''}
+        ${session.zoom_passcode ? `<p><strong>Passcode:</strong> ${session.zoom_passcode}</p>` : ''}
       </div>
+      ` : ''}
       
-      <p>📎 <strong>Calendar invite attached</strong> - Add to your calendar so you don't miss it!</p>
+      <p>A calendar invite is attached to this email.</p>
       
-      <div class="what-to-expect">
-        <h3 style="color: #667eea;">What to expect:</h3>
-        <ul>
-          <li>AI fundamentals explained simply</li>
-          <li>Prompt engineering do's and don'ts</li>
-          <li>Introduction to context engineering</li>
-          <li>Live Q&A with 150 fellow learners</li>
-        </ul>
-      </div>
+      <p>Join 5 minutes early to test your setup.</p>
       
-      <div class="pro-tip">
-        <strong>💡 Pro tip:</strong> Join 5 minutes early to test your audio/video.
-      </div>
-      
-      <p>See you there! 🚀</p>
-      
-      <p style="margin-top: 30px;">
-        <strong>Team NXTAI101</strong><br>
-        <a href="mailto:hello@nxtai101.com">hello@nxtai101.com</a>
-      </p>
+      <p style="margin-top: 32px;">Best,<br>NXTAI101 Team</p>
     </div>
     
     <div class="footer">
-      <p>© 2025 NXTAI101. All rights reserved.</p>
-      <p style="font-size: 12px; color: #9ca3af;">Payment ID: ${enrollment.razorpay_payment_id || enrollment.razorpay_order_id}</p>
+      <p>Questions? Reply to this email or contact hello@nxtai101.com</p>
+      <p>© 2025 NXTAI101</p>
     </div>
   </div>
 </body>
@@ -163,7 +137,7 @@ function generateConfirmationEmailHTML(enrollment: Enrollment, session: Session)
 }
 
 /**
- * Send confirmation email with Zoom link
+ * Send confirmation email with meeting link
  */
 export async function sendConfirmationEmail(
   enrollment: Enrollment,
@@ -174,9 +148,9 @@ export async function sendConfirmationEmail(
     const icsFile = generateCalendarInvite(session);
 
     const { data, error } = await resend.emails.send({
-      from: 'NXTAI101 <hello@nxtai101.com>',
+      from: 'NXTAI101 <no-reply@nxtai101.com>',
       to: enrollment.email,
-      subject: `✅ You're enrolled in Spark 101 - ${formatSessionDate(session.session_date)}`,
+      subject: `Thankyou for enrolling in Spark 101 - ${formatSessionDate(session.session_date)}`,
       html: emailHtml,
       attachments: [
         {
@@ -215,28 +189,31 @@ export async function sendReminderEmail(
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: #667eea; color: white; padding: 20px; text-align: center; border-radius: 8px; }
-    .content { padding: 20px; }
-    .zoom-button { background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 15px 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #1f2937; margin: 0; padding: 0; background: #f9fafb; }
+    .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 8px; overflow: hidden; }
+    .header { background: #4f46e5; color: white; padding: 24px; text-align: center; }
+    .content { padding: 32px; }
+    .button { display: inline-block; background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    .footer { text-align: center; padding: 24px; color: #9ca3af; font-size: 13px; border-top: 1px solid #e5e7eb; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>⏰ Spark 101 starts tomorrow!</h1>
+      <h1>Session Tomorrow</h1>
     </div>
     <div class="content">
-      <p>Hi <strong>${enrollment.name}</strong>,</p>
-      <p>Just a friendly reminder — your Spark 101 session is tomorrow!</p>
-      <p><strong>📅 Tomorrow, ${sessionDate}</strong><br>
-      <strong>🕐 ${sessionTime} IST</strong></p>
-      <a href="${session.zoom_link}" class="zoom-button">Join Zoom Session</a>
-      <p><strong>💡 Pro tip:</strong> Join 5 minutes early to test your audio/video.</p>
-      <p>Excited to see you there!</p>
-      <p><strong>Team NXTAI101</strong></p>
+      <p>Hi ${enrollment.name},</p>
+      <p>Your Spark 101 session is tomorrow:</p>
+      <p><strong>${sessionDate}</strong><br>${sessionTime} IST</p>
+      <a href="${session.zoom_link}" class="button">Join Session</a>
+      <p>Join 5 minutes early to test your setup.</p>
+      <p>Best,<br>NXTAI101 Team</p>
+    </div>
+    <div class="footer">
+      <p>© 2025 NXTAI101</p>
     </div>
   </div>
 </body>
@@ -244,7 +221,7 @@ export async function sendReminderEmail(
     `;
 
     const { error } = await resend.emails.send({
-      from: 'NXTAI101 <hello@nxtai101.com>',
+      from: 'NXTAI101 <no-reply@nxtai101.com>',
       to: enrollment.email,
       subject: `⏰ Spark 101 starts tomorrow at ${sessionTime}`,
       html: emailHtml,

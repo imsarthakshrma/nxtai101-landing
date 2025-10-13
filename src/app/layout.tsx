@@ -21,7 +21,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "NXT AI 101 - Step Into the AI Era",
+  title: "nxtai101 - Step Into the AI Era",
   description: "From your first AI prompt to becoming a confident creator — NXT makes you future-ready.",
 }
 

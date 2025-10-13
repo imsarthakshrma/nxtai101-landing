@@ -22,6 +22,9 @@ CREATE TABLE IF NOT EXISTS sessions (
   max_capacity INTEGER DEFAULT 150,
   current_enrollments INTEGER DEFAULT 0,
   
+  -- Pricing (in INR)
+  price INTEGER NOT NULL DEFAULT 199,
+  
   -- Status
   status TEXT DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'completed', 'cancelled')),
   
@@ -80,8 +83,11 @@ CREATE INDEX IF NOT EXISTS idx_enrollments_payment_status ON enrollments(payment
 CREATE INDEX IF NOT EXISTS idx_enrollments_razorpay_order ON enrollments(razorpay_order_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_razorpay_payment ON enrollments(razorpay_payment_id);
 
--- Prevent duplicate enrollments for same session
-CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_session_email ON enrollments(session_id, email);
+-- Prevent duplicate SUCCESSFUL enrollments for same session
+-- Only applies to successful payments, allows retry for failed/pending payments
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_session_email_success 
+  ON enrollments(session_id, email) 
+  WHERE payment_status = 'success';
 
 -- Create function to increment session enrollments
 CREATE OR REPLACE FUNCTION increment_session_enrollments(session_id UUID)
@@ -136,16 +142,30 @@ CREATE POLICY "Service role can manage enrollments"
   ON enrollments FOR ALL
   USING (auth.role() = 'service_role');
 
--- Insert sample session (for testing)
-INSERT INTO sessions (title, session_date, zoom_link, zoom_meeting_id, zoom_passcode, max_capacity)
-VALUES (
-  'Spark 101 - October 11, 2025',
-  '2025-10-11 19:00:00+05:30',
-  'https://zoom.us/j/123456789',
-  '123 456 789',
-  'spark101',
-  150
-);
+-- Insert sessions for October 2025
+INSERT INTO sessions (title, session_date, zoom_link, zoom_meeting_id, zoom_passcode, max_capacity, price, status)
+VALUES 
+  (
+    'Spark 101 - October 18, 2025',
+    '2025-10-18 11:00:00+05:30',
+    'https://meet.google.com/dkw-ztcj-wuo',
+    'dkw-ztcj-wuo',
+    '413 750 055',
+    150,
+    199,
+    'upcoming'
+  ),
+  (
+    'Spark 101 - October 25, 2025',
+    '2025-10-25 11:00:00+05:30',
+    'https://meet.google.com/yin-bpcm-fjt',
+    'yin-bpcm-fjt',
+    '916 452 432',
+    150,
+    199,
+    'upcoming'
+  )
+ON CONFLICT DO NOTHING;
 
 -- Grant necessary permissions
 GRANT USAGE ON SCHEMA public TO anon, authenticated;

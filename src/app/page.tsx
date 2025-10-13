@@ -2,18 +2,18 @@
 
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-// import { EnrollmentModal } from "@/components/enrollment-modal"
-// import { useRouter } from "next/navigation"
+import { EnrollmentModal } from "@/components/enrollment-modal"
+import { useRouter } from "next/navigation"
 import React from "react"
 import Link from "next/link"
 
 export default function HomePage() {
-  // const router = useRouter();
-  // const [enrollmentModalOpen, setEnrollmentModalOpen] = React.useState(false);
+  const router = useRouter();
+  const [enrollmentModalOpen, setEnrollmentModalOpen] = React.useState(false);
 
-  // function handleEnrollmentSuccess(enrollmentId: string) {
-  //   router.push(`/success?id=${enrollmentId}`);
-  // }
+  function handleEnrollmentSuccess(enrollmentId: string) {
+    router.push(`/success?id=${enrollmentId}`);
+  }
   React.useEffect(() => {
     const observerOptions = {
       threshold: 0.1,
@@ -75,19 +75,19 @@ export default function HomePage() {
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-8">
               <a
-                href="#"
+                href="#courses"
                 className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 Courses
               </a>
               <a
-                href="#"
+                href="#how-it-works"
                 className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 How it works
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 Contact
@@ -142,7 +142,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-black animated-gradient">
+      <section id="how-it-works" className="py-24 px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-black animated-gradient">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-instrument-serif text-4xl md:text-5xl text-white mb-16 text-center text-balance scroll-fade-text">
             Beyond Prompts. Beyond Templates.
@@ -166,7 +166,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative py-24 px-6 bg-gradient-to-br from-[#0C0F1A] via-[#131933] to-[#0C0F1A] overflow-hidden">
+      <section id="courses" className="relative py-24 px-6 bg-gradient-to-br from-[#0C0F1A] via-[#131933] to-[#0C0F1A] overflow-hidden">
         {/* Floating particle field background */}
         <div className="absolute inset-0 pointer-events-none opacity-30">
           <div className="builder-particle absolute top-1/4 left-1/4"></div>
@@ -280,10 +280,10 @@ export default function HomePage() {
                 </p>
               </div>
               <Button 
-                disabled
-                className="w-full bg-gray-400 text-gray-700 py-3 rounded-full cursor-not-allowed"
+                onClick={() => setEnrollmentModalOpen(true)}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 btn-alive"
               >
-                Available Soon!
+                Enroll in Spark 101
               </Button>
             </div>
 
@@ -373,7 +373,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-black">
+      <section id="contact" className="py-24 px-6 bg-black">
         <div className="max-w-4xl mx-auto text-center">
           {/* Updated headline */}
           <h2 className="font-instrument-serif text-4xl md:text-5xl text-white mb-8 text-balance scroll-fade-text">
@@ -433,12 +433,12 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* Enrollment Modal - Disabled for now, will enable after backend setup */}
-      {/* <EnrollmentModal
+      {/* Enrollment Modal */}
+      <EnrollmentModal
         open={enrollmentModalOpen}
         onOpenChange={setEnrollmentModalOpen}
         onSuccess={handleEnrollmentSuccess}
-      /> */}
+      />
     </div>
   )
 }

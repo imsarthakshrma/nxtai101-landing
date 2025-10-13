@@ -8,6 +8,7 @@ export interface Session {
   zoom_passcode: string | null;
   max_capacity: number;
   current_enrollments: number;
+  price: number;
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   created_at: string;
   updated_at: string;

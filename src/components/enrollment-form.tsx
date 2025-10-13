@@ -98,7 +98,6 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: session.id,
-          amount: 199,
           user_info: formData,
         }),
       });
@@ -183,91 +182,146 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
-        <h3 className="font-semibold text-indigo-900 mb-1">Selected Session</h3>
-        <p className="text-sm text-indigo-700">{session.title}</p>
-        <p className="text-sm text-indigo-600">
-          {new Date(session.session_date).toLocaleDateString('en-IN', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </p>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Selected Session Card */}
+      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 shadow-sm">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">Selected Session</h3>
+            <p className="text-lg font-bold text-gray-900 mb-1">{session.title}</p>
+            <div className="flex items-center text-gray-700 space-x-4">
+              <span className="flex items-center">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {new Date(session.session_date).toLocaleDateString('en-IN', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </span>
+              <span className="flex items-center">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {new Date(session.session_date).toLocaleTimeString('en-IN', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })} IST
+              </span>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl font-bold text-indigo-600">₹199</p>
+            <p className="text-xs text-gray-500">One-time payment</p>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <Label htmlFor="name">Full Name *</Label>
-        <Input
-          id="name"
-          placeholder="John Doe"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
+      {/* Form Fields */}
+      <div className="space-y-5">
+        <div>
+          <Label htmlFor="name" className="text-sm font-semibold text-gray-700 mb-2 block">
+            Full Name <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="name"
+            placeholder="Enter your full name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+            className="h-12 text-base border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-2 block">
+            Email Address <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="your.email@example.com"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            required
+            className="h-12 text-base border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+          />
+          <p className="text-xs text-gray-500 mt-1">We&apos;ll send your Zoom/Meet link here</p>
+        </div>
+
+        <div>
+          <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 mb-2 block">
+            Phone Number <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder="+91 98765 43210"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            required
+            className="h-12 text-base border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <Label htmlFor="company" className="text-sm font-semibold text-gray-700 mb-2 block">
+              Company <span className="text-gray-400 text-xs">(Optional)</span>
+            </Label>
+            <Input
+              id="company"
+              placeholder="Your company name"
+              value={formData.company}
+              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+              className="h-12 text-base border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="linkedin" className="text-sm font-semibold text-gray-700 mb-2 block">
+              LinkedIn <span className="text-gray-400 text-xs">(Optional)</span>
+            </Label>
+            <Input
+              id="linkedin"
+              placeholder="linkedin.com/in/yourprofile"
+              value={formData.linkedin_url}
+              onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
+              className="h-12 text-base border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
       </div>
 
-      <div>
-        <Label htmlFor="email">Email *</Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="john@example.com"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="phone">Phone *</Label>
-        <Input
-          id="phone"
-          type="tel"
-          placeholder="+91 98765 43210"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          required
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="company">Company (Optional)</Label>
-        <Input
-          id="company"
-          placeholder="Acme Inc"
-          value={formData.company}
-          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="linkedin">LinkedIn URL (Optional)</Label>
-        <Input
-          id="linkedin"
-          placeholder="https://linkedin.com/in/johndoe"
-          value={formData.linkedin_url}
-          onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-        />
-      </div>
-
-      <div className="flex gap-3 pt-4">
+      {/* Action Buttons */}
+      <div className="flex gap-4 pt-6 border-t">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={loading}
-          className="flex-1"
+          className="flex-1 h-12 text-base font-semibold border-2 hover:bg-gray-50"
         >
           Back
         </Button>
         <Button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          className="flex-1 h-12 text-base font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
         >
-          {loading ? 'Processing...' : 'Pay ₹199'}
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-2 h-5 w-5 font-medium text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            'Proceed to Payment'
+          )}
         </Button>
       </div>
     </form>
