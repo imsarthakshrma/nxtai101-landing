@@ -6,15 +6,15 @@ import type { Session, CreateEnrollmentData } from '@/types/database';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { session_id, amount, user_info } = body;
+    const { session_id, user_info } = body;
 
-    console.log('Create order request:', { session_id, amount, user_info });
+    console.log('Create order request:', { session_id, user_info });
 
     // Validate required fields
-    if (!session_id || !amount || !user_info) {
-      console.error('Missing required fields:', { session_id, amount, user_info });
+    if (!session_id || !user_info) {
+      console.error('Missing required fields:', { session_id, user_info });
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields: session_id and user_info are required' },
         { status: 400 }
       );
     }
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch session and check capacity
+    // Fetch session and validate price
     const { data: session, error: sessionError } = await supabaseAdmin
       .from('sessions')
       .select('*')
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (sessionError || !session) {
+      console.error('Session not found:', sessionError);
       return NextResponse.json(
         { error: 'Session not found' },
         { status: 404 }
@@ -44,6 +45,15 @@ export async function POST(request: NextRequest) {
     }
 
     const typedSession = session as Session;
+
+    // Validate session has a price
+    if (!typedSession.price || typedSession.price <= 0) {
+      console.error('Session has no valid price:', typedSession.price);
+      return NextResponse.json(
+        { error: 'Session price not configured' },
+        { status: 400 }
+      );
+    }
 
     // Check if session is full
     if (typedSession.current_enrollments >= typedSession.max_capacity) {
@@ -69,9 +79,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Razorpay order
+    // Create Razorpay order using trusted session price
     const razorpayOrder = await razorpayInstance.orders.create({
-      amount: formatAmountToPaise(amount),
+      amount: formatAmountToPaise(typedSession.price),
       currency: 'INR',
       receipt: `receipt_${Date.now()}`,
       notes: {
@@ -83,6 +93,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Create enrollment record (status: pending)
+    // The unique index on (session_id, email) WHERE payment_status = 'success' 
+    // allows multiple pending/failed enrollments but prevents duplicate successful ones
     const enrollmentData: CreateEnrollmentData = {
       session_id,
       name,

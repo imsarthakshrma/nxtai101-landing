@@ -98,7 +98,6 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: session.id,
-          amount: 199,
           user_info: formData,
         }),
       });
@@ -249,7 +248,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
             required
             className="h-12 text-base border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
           />
-          <p className="text-xs text-gray-500 mt-1">We'll send your Zoom/meet link here</p>
+          <p className="text-xs text-gray-500 mt-1">We&apos;ll send your Zoom/Meet link here</p>
         </div>
 
         <div>

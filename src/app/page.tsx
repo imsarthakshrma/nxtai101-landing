@@ -75,19 +75,19 @@ export default function HomePage() {
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-8">
               <a
-                href="#"
+                href="#courses"
                 className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 Courses
               </a>
               <a
-                href="#"
+                href="#how-it-works"
                 className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 How it works
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="text-gray-200 hover:text-white transition-colors duration-200 font-medium text-lg font-inter hover-glow"
               >
                 Contact
@@ -142,7 +142,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-black animated-gradient">
+      <section id="how-it-works" className="py-24 px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-black animated-gradient">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-instrument-serif text-4xl md:text-5xl text-white mb-16 text-center text-balance scroll-fade-text">
             Beyond Prompts. Beyond Templates.
@@ -166,7 +166,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative py-24 px-6 bg-gradient-to-br from-[#0C0F1A] via-[#131933] to-[#0C0F1A] overflow-hidden">
+      <section id="courses" className="relative py-24 px-6 bg-gradient-to-br from-[#0C0F1A] via-[#131933] to-[#0C0F1A] overflow-hidden">
         {/* Floating particle field background */}
         <div className="absolute inset-0 pointer-events-none opacity-30">
           <div className="builder-particle absolute top-1/4 left-1/4"></div>
@@ -373,7 +373,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-black">
+      <section id="contact" className="py-24 px-6 bg-black">
         <div className="max-w-4xl mx-auto text-center">
           {/* Updated headline */}
           <h2 className="font-instrument-serif text-4xl md:text-5xl text-white mb-8 text-balance scroll-fade-text">

@@ -73,7 +73,7 @@ export default function PrivacyPolicyPage() {
               <li>Supabase (database storage)</li>
               <li>Razorpay (payment processing)</li>
               <li>Resend (email delivery)</li>
-              <li>Zoom or Google meet(video conferencing)</li>
+              <li>Zoom or Google Meet (video conferencing)</li>
               <li>AWS (website hosting)</li>
             </ul>
           </section>

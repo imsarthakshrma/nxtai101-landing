@@ -25,7 +25,7 @@ DTSTAMP:${formatICSDate(new Date())}
 DTSTART:${formatICSDate(startDate)}
 DTEND:${formatICSDate(endDate)}
 SUMMARY:Spark 101 - NXTAI101
-DESCRIPTION:Join us for Spark 101\\n\\nZoom Link: ${session.zoom_link}${session.zoom_meeting_id ? `\\nMeeting ID: ${session.zoom_meeting_id}` : ''}${session.zoom_passcode ? `\\nPasscode: ${session.zoom_passcode}` : ''}
+DESCRIPTION:Join us for Spark 101\n\nMeeting Link: ${session.zoom_link}${session.zoom_meeting_id ? `\nMeeting Code: ${session.zoom_meeting_id}` : ''}${session.zoom_passcode ? `\nPIN: ${session.zoom_passcode}` : ''}
 LOCATION:${session.zoom_link}
 STATUS:CONFIRMED
 SEQUENCE:0
@@ -137,7 +137,7 @@ function generateConfirmationEmailHTML(enrollment: Enrollment, session: Session)
 }
 
 /**
- * Send confirmation email with Zoom link
+ * Send confirmation email with meeting link
  */
 export async function sendConfirmationEmail(
   enrollment: Enrollment,
@@ -148,9 +148,9 @@ export async function sendConfirmationEmail(
     const icsFile = generateCalendarInvite(session);
 
     const { data, error } = await resend.emails.send({
-      from: 'NXTAI101 <hello@nxtai101.com>',
+      from: 'NXTAI101 <no-reply@nxtai101.com>',
       to: enrollment.email,
-      subject: `✅ You're enrolled in Spark 101 - ${formatSessionDate(session.session_date)}`,
+      subject: `Thankyou for enrolling in Spark 101 - ${formatSessionDate(session.session_date)}`,
       html: emailHtml,
       attachments: [
         {

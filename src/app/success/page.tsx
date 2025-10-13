@@ -46,120 +46,62 @@ function SuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-white">
-      <div className="container mx-auto px-6 py-12">
-        <div className="max-w-3xl mx-auto">
-          {/* Success Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center">
-            {/* Success Icon */}
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg
-                className="w-10 h-10 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-
-            {/* Success Message */}
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              🎉 Payment Successful!
-            </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              You&apos;re enrolled in Spark 101
-            </p>
-
-            {/* Confirmation Details */}
-            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-6 mb-8 text-left">
-              <h2 className="font-semibold text-indigo-900 mb-4 text-center">
-                What happens next?
-              </h2>
-              <ul className="space-y-3 text-gray-700">
-                <li className="flex items-start gap-3">
-                  <span className="text-indigo-600 mt-1">📧</span>
-                  <span>
-                    <strong>Check your email</strong> - You&apos;ll receive a confirmation with your Zoom link
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-indigo-600 mt-1">📅</span>
-                  <span>
-                    <strong>Add to calendar</strong> - We&apos;ve attached a calendar invite to your email
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-indigo-600 mt-1">⏰</span>
-                  <span>
-                    <strong>Get a reminder</strong> - We&apos;ll send you a reminder 24 hours before the session
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-indigo-600 mt-1">🎯</span>
-                  <span>
-                    <strong>Join early</strong> - Log in 5 minutes before to test your audio/video
-                  </span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Pro Tips */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8 text-left">
-              <h3 className="font-semibold text-yellow-900 mb-3">💡 Pro Tips</h3>
-              <ul className="space-y-2 text-sm text-yellow-800">
-                <li>• Check your spam folder if you don&apos;t see the email</li>
-                <li>• Test your Zoom setup before the session</li>
-                <li>• Prepare questions you want to ask</li>
-                <li>• Join from a quiet space with good internet</li>
-              </ul>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={() => router.push('/')}
-                variant="outline"
-                className="px-8"
-              >
-                Back to Home
-              </Button>
-              <Button
-                onClick={() => window.open('mailto:hello@nxtai101.com', '_blank')}
-                className="px-8 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-              >
-                Contact Support
-              </Button>
-            </div>
-
-            {/* Support Note */}
-            <p className="text-sm text-gray-500 mt-8">
-              Didn&apos;t receive the email?{' '}
-              <a
-                href="mailto:hello@nxtai101.com"
-                className="text-indigo-600 hover:underline"
-              >
-                Contact us
-              </a>
-            </p>
-          </div>
-
-          {/* Footer Logo */}
-          <div className="text-center mt-8">
-            <Image
-              src="/images/trans-logo.png"
-              alt="NXTAI101"
-              width={80}
-              height={80}
-              className="mx-auto opacity-50"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center px-6">
+      <div className="max-w-2xl w-full text-center">
+        {/* Success Icon */}
+        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-scale-in">
+          <svg
+            className="w-12 h-12 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+              d="M5 13l4 4L19 7"
             />
-          </div>
+          </svg>
         </div>
+
+        {/* Success Message */}
+        <h1 className="font-instrument-serif text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+          Payment Successful!
+        </h1>
+        <p className="text-2xl md:text-3xl text-gray-600 mb-12">
+          You&apos;re enrolled in Spark 101
+        </p>
+
+        {/* Simple Info */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+          <p className="text-gray-700 text-lg leading-relaxed">
+            Check your email for the Zoom/Meet link and calendar invite.
+            <br />
+            <span className="text-gray-500 text-base">
+              We&apos;ll send you a reminder 24 hours before the session.
+            </span>
+          </p>
+        </div>
+
+        {/* Action Button */}
+        <Button
+          onClick={() => router.push('/')}
+          className="px-8 py-6 text-lg bg-gradient-to-r from-purple-600 text-white to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+        >
+          Back to Home
+        </Button>
+
+        {/* Support Note */}
+        <p className="text-sm text-gray-400 mt-8">
+          Questions?{' '}
+          <a
+            href="mailto:hello@nxtai101.com"
+            className="text-indigo-600 hover:underline"
+          >
+            Contact us
+          </a>
+        </p>
       </div>
     </div>
   );

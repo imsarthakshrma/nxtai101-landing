@@ -3,15 +3,16 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    // Test 1: Check if Supabase client is initialized
-    if (!supabase) {
+    // Validate required environment variables
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return NextResponse.json({
         success: false,
-        error: 'Supabase client not initialized',
+        error: 'Supabase configuration missing',
+        details: 'NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set',
       }, { status: 500 });
     }
 
-    // Test 2: Try to query sessions table
+    // Test: Try to query sessions table
     const { data, error } = await supabase
       .from('sessions')
       .select('*')
