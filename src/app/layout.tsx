@@ -6,6 +6,7 @@ import { Instrument_Serif } from "next/font/google"
 import { Inter } from "next/font/google"
 // import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import Script from "next/script"
 import "./globals.css"
 
 const instrumentSerif = Instrument_Serif({
@@ -32,6 +33,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-RQ5VML66YN"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-RQ5VML66YN');
+          `}
+        </Script>
+      </head>
       <body className={`font-sans ${inter.variable} ${instrumentSerif.variable}`}>
         <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
       </body>
