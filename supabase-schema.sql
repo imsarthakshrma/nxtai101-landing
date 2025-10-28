@@ -4,6 +4,49 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Create admin_users table
+CREATE TABLE IF NOT EXISTS admin_users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  
+  -- Authentication
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  
+  -- Profile
+  name TEXT,
+  role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'super_admin', 'moderator')),
+  
+  -- Activity Tracking
+  last_login TIMESTAMPTZ,
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create admin_activity_log table
+CREATE TABLE IF NOT EXISTS admin_activity_log (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  
+  -- Foreign Key
+  admin_id UUID NOT NULL REFERENCES admin_users(id) ON DELETE CASCADE,
+  
+  -- Activity Details
+  action TEXT NOT NULL,
+  entity_type TEXT,
+  entity_id UUID,
+  
+  -- Request Context
+  ip_address TEXT,
+  user_agent TEXT,
+  
+  -- Additional Data
+  metadata JSONB,
+  
+  -- Timestamp
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Create sessions table
 CREATE TABLE IF NOT EXISTS sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -75,6 +118,10 @@ CREATE TABLE IF NOT EXISTS enrollments (
 );
 
 -- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_admin_users_email ON admin_users(email);
+CREATE INDEX IF NOT EXISTS idx_admin_activity_log_admin_id ON admin_activity_log(admin_id);
+CREATE INDEX IF NOT EXISTS idx_admin_activity_log_created_at ON admin_activity_log(created_at);
+CREATE INDEX IF NOT EXISTS idx_admin_activity_log_action ON admin_activity_log(action);
 CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(session_date);
 CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status);
 CREATE INDEX IF NOT EXISTS idx_enrollments_session ON enrollments(session_id);
@@ -110,6 +157,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create triggers for updated_at
+CREATE TRIGGER update_admin_users_updated_at
+  BEFORE UPDATE ON admin_users
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_sessions_updated_at
   BEFORE UPDATE ON sessions
   FOR EACH ROW
@@ -121,8 +173,20 @@ CREATE TRIGGER update_enrollments_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 -- Enable Row Level Security
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE enrollments ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for admin_users
+CREATE POLICY "Service role can manage admin users"
+  ON admin_users FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- RLS Policies for admin_activity_log
+CREATE POLICY "Service role can manage admin activity log"
+  ON admin_activity_log FOR ALL
+  USING (auth.role() = 'service_role');
 
 -- RLS Policies for sessions
 CREATE POLICY "Public can view upcoming sessions"

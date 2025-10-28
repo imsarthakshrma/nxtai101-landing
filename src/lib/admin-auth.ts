@@ -3,12 +3,17 @@ import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
+// Validate JWT_SECRET at module initialization - fail fast if missing
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.trim() === '') {
+  throw new Error('JWT_SECRET must be set in environment variables');
+}
+
+export const JWT_SECRET = process.env.JWT_SECRET;
 const COOKIE_NAME = 'admin_token';
 
 export interface AdminUser {
     id: string;
-    email:string;
+    email: string;
     name: string;
     role: 'super_admin' | 'admin' | 'viewer';
 }

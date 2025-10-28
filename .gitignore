@@ -43,3 +43,5 @@ yarn-error.log*
 next-env.d.ts
 
 ngrok.yml
+
+hash-password.js

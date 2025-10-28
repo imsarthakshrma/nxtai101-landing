@@ -23,15 +23,19 @@ export async function POST(request: NextRequest) {
       .eq('email', email.toLowerCase())
       .single();
 
-    if (error || !admin) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
+    // if (error || !admin) {
+    //   return NextResponse.json(
+    //     { error: 'Invalid credentials' },
+    //     { status: 401 }
+    //   );
+    // }
 
     // Verify password
-    const isValid = await verifyPassword(password, admin.password_hash);
+    // const isValid = await verifyPassword(password, admin.password_hash);
+    const isValid = admin && !error 
+      ? await verifyPassword(password, admin.password_hash)
+      : await verifyPassword(password, '$2a$10$dummy.hash.to.prevent.timing');
+    
     if (!isValid) {
       return NextResponse.json(
         { error: 'Invalid credentials' },

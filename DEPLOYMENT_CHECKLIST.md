@@ -22,6 +22,7 @@ RESEND_API_KEY=re_Q6zjArrQ_3hszy9AECwoBJTRMiowYkgpx
 
 # Admin
 ADMIN_PASSWORD=xxxxx                              # ⚠️ Use a strong password
+JWT_SECRET=xxxxx                                  # ⚠️ REQUIRED - Generate with: openssl rand -base64 32
 
 # App URL - Update to production domain
 NEXT_PUBLIC_APP_URL=https://nxtai101.com          # ⚠️ Change from localhost
@@ -64,6 +65,8 @@ NEXT_PUBLIC_APP_URL=https://nxtai101.com          # ⚠️ Change from localhost
 - [ ] Verify all tables are created:
   - `sessions`
   - `enrollments`
+  - `admin_users`
+  - `admin_activity_log`
 
 #### B. Add Price Column (if not already done)
 ```sql
@@ -110,6 +113,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_session_email_success
   ON enrollments(session_id, email) 
   WHERE payment_status = 'success';
 ```
+
+#### E. Run Admin Tables Migration
+- [ ] SQL Editor → Run `migration-add-admin-tables.sql`
+- [ ] Generate password hash: `node hash-password.js`
+- [ ] Update `seed-admin-user.sql` with the hash
+- [ ] SQL Editor → Run `seed-admin-user.sql`
+- [ ] Verify migration: Run `verify-admin-tables.sql`
+- [ ] Test admin login at `/admin/login`
+- [ ] **Change default password immediately!**
+
+See `ADMIN_TABLES_MIGRATION.md` for detailed instructions.
 
 ---
 
