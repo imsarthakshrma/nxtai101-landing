@@ -142,7 +142,7 @@ CREATE POLICY "Service role can manage enrollments"
   ON enrollments FOR ALL
   USING (auth.role() = 'service_role');
 
--- Insert sessions for October 2025
+-- Insert sessions for October & November 2025
 INSERT INTO sessions (title, session_date, zoom_link, zoom_meeting_id, zoom_passcode, max_capacity, price, status)
 VALUES 
   (
@@ -161,6 +161,16 @@ VALUES
     'https://meet.google.com/yin-bpcm-fjt',
     'yin-bpcm-fjt',
     '916 452 432',
+    150,
+    199,
+    'upcoming'
+  ),
+  (
+    'Spark 101 - November 8, 2025',
+    '2025-11-08 11:00:00+05:30',
+    'https://meet.google.com/foa-kfvi-pbc',
+    'foa-kfvi-pbc',
+    '205 765 411',
     150,
     199,
     'upcoming'
