@@ -131,6 +131,9 @@ RESEND_API_KEY=re_xxxxx
 # Admin
 ADMIN_PASSWORD=your_secure_password
 
+# JWT Secret (REQUIRED - generate with: openssl rand -base64 32)
+JWT_SECRET=your_jwt_secret_here
+
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
