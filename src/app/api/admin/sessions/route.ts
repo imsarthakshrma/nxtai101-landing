@@ -24,11 +24,15 @@ export async function GET() {
       );
     }
 
-    // Log activity
-    await supabaseAdmin.from('admin_activity_log').insert({
+    // Log activity (non-blocking, fire-and-forget)
+    supabaseAdmin.from('admin_activity_log').insert({
       admin_id: admin.id,
       action: 'view_sessions',
       entity_type: 'session',
+    }).then(({ error: logError }) => {
+      if (logError) {
+        console.error('Failed to log activity:', logError);
+      }
     });
 
     return NextResponse.json({ sessions });

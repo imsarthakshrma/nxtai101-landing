@@ -46,7 +46,8 @@ export function generateToken(user: AdminUser): string {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        must_change_password: Boolean(user.must_change_password)
     }, JWT_SECRET, {
         expiresIn: '7d'
     })

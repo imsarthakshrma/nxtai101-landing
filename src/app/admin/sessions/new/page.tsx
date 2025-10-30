@@ -22,7 +22,7 @@ export default function NewSessionPage() {
               />
             </svg>
           </div>
-          <h2 className="font-instrumenet-serif text-2xl font-bold mb-2">Coming Soon</h2>
+          <h2 className="font-instrument-serif text-2xl font-medium mb-2">Coming Soon</h2>
           <p className="text-gray-400 max-w-md mx-auto">
             Session creation form will be available here. For now, add sessions directly in Supabase.
           </p>

@@ -4,18 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import Link from 'next/link';
-
-interface Session {
-  id: string;
-  title: string;
-  session_date: string;
-  price: number;
-  max_capacity: number;
-  current_enrollments: number;
-  status: string;
-  zoom_link: string;
-}
+import { Session } from '@/types/database';
 
 export default function SessionsPage() {
   const router = useRouter();
@@ -56,7 +45,7 @@ export default function SessionsPage() {
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: Session['status']) => {
     switch (status) {
       case 'upcoming':
         return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
@@ -66,8 +55,6 @@ export default function SessionsPage() {
         return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
       case 'cancelled':
         return 'bg-red-500/10 text-red-400 border-red-500/20';
-      default:
-        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
     }
   };
 
@@ -195,7 +182,9 @@ export default function SessionsPage() {
                     <div>
                       <p className="text-gray-500 mb-1">Enrollment Rate</p>
                       <p className="text-gray-300">
-                        {Math.round((session.current_enrollments / session.max_capacity) * 100)}%
+                        {session.max_capacity > 0
+                          ? `${Math.round((session.current_enrollments / session.max_capacity) * 100)}%`
+                          : 'N/A'}
                       </p>
                     </div>
                   </div>

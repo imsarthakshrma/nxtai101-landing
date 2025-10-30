@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentAdmin, hashPassword, verifyPassword, generateToken, setAuthCookie } from '@/lib/admin-auth';
+import { getCurrentAdmin, hashPassword, verifyPassword, generateToken, setAuthCookie, AdminUser } from '@/lib/admin-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getClientIP } from '@/lib/rate-limit';
 
@@ -110,10 +110,7 @@ export async function POST(request: NextRequest) {
 
     // Generate new token without must_change_password flag
     const token = generateToken({
-      id: admin.id,
-      email: admin.email,
-      name: admin.name,
-      role: admin.role,
+      ...admin,
       must_change_password: false,
     });
 

@@ -37,11 +37,15 @@ export async function GET() {
       session_date: enrollment.sessions?.session_date || null,
     }));
 
-    // Log activity
-    await supabaseAdmin.from('admin_activity_log').insert({
+    // Log activity (non-blocking, fire-and-forget)
+    supabaseAdmin.from('admin_activity_log').insert({
       admin_id: admin.id,
       action: 'view_enrollments',
       entity_type: 'enrollment',
+    }).then(({ error: logError }) => {
+      if (logError) {
+        console.error('Failed to log enrollments activity:', logError);
+      }
     });
 
     return NextResponse.json({ enrollments: transformedEnrollments });

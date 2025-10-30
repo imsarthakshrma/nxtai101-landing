@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { verifyPassword, generateToken, setAuthCookie } from '@/lib/admin-auth';
+import { verifyPassword, generateToken, setAuthCookie, AdminUser } from '@/lib/admin-auth';
 import { checkRateLimit, resetRateLimit, getClientIP } from '@/lib/rate-limit';
 import { NextRequest } from 'next/server';
 

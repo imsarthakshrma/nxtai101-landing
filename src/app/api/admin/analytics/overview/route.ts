@@ -11,36 +11,72 @@ export async function GET() {
     }
 
     // Fetch total enrollments
-    const { count: totalEnrollments } = await supabaseAdmin
+    const { count: totalEnrollments, error: enrollmentsError } = await supabaseAdmin
       .from('enrollments')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('payment_status', 'success');
 
+    if (enrollmentsError) {
+      console.error('Error fetching enrollments count:', enrollmentsError);
+      return NextResponse.json(
+        { error: 'Failed to fetch enrollments data' },
+        { status: 500 }
+      );
+    }
+
     // Fetch total revenue
-    const { data: revenueData } = await supabaseAdmin
+    const { data: revenueData, error: revenueError } = await supabaseAdmin
       .from('enrollments')
       .select('amount_paid')
       .eq('payment_status', 'success');
 
-    const totalRevenue = revenueData?.reduce((sum, e) => sum + (e.amount_paid || 0), 0) || 0;
+    if (revenueError) {
+      console.error('Error fetching revenue data:', revenueError);
+      return NextResponse.json(
+        { error: 'Failed to fetch revenue data' },
+        { status: 500 }
+      );
+    }
+
+    const totalRevenue = (revenueData || []).reduce((sum, e) => sum + (e.amount_paid || 0), 0);
 
     // Fetch upcoming sessions count
-    const { count: upcomingSessions } = await supabaseAdmin
+    const { count: upcomingSessions, error: sessionsError } = await supabaseAdmin
       .from('sessions')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('status', 'upcoming');
 
+    if (sessionsError) {
+      console.error('Error fetching sessions count:', sessionsError);
+      return NextResponse.json(
+        { error: 'Failed to fetch sessions data' },
+        { status: 500 }
+      );
+    }
+
     // Fetch pending payments count
-    const { count: pendingPayments } = await supabaseAdmin
+    const { count: pendingPayments, error: pendingError } = await supabaseAdmin
       .from('enrollments')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('payment_status', 'pending');
 
-    // Log activity
-    await supabaseAdmin.from('admin_activity_log').insert({
+    if (pendingError) {
+      console.error('Error fetching pending payments count:', pendingError);
+      return NextResponse.json(
+        { error: 'Failed to fetch pending payments data' },
+        { status: 500 }
+      );
+    }
+
+    // Log activity (non-blocking, fire-and-forget)
+    supabaseAdmin.from('admin_activity_log').insert({
       admin_id: admin.id,
       action: 'view_analytics',
       entity_type: 'analytics',
+    }).then(({ error: logError }) => {
+      if (logError) {
+        console.error('Failed to log analytics activity:', logError);
+      }
     });
 
     return NextResponse.json({
