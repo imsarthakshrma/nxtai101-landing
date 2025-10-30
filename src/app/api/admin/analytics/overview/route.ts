@@ -38,7 +38,11 @@ export async function GET() {
       );
     }
 
-    const totalRevenue = (revenueData || []).reduce((sum, e) => sum + (e.amount_paid || 0), 0);
+    const totalRevenuePaise = (revenueData ?? []).reduce((sum, e) => {
+      const rawAmount = typeof e.amount_paid === 'number' ? e.amount_paid : Number(e.amount_paid ?? 0);
+      return Number.isFinite(rawAmount) ? sum + rawAmount : sum;
+    }, 0);
+    const totalRevenue = totalRevenuePaise / 100;
 
     // Fetch upcoming sessions count
     const { count: upcomingSessions, error: sessionsError } = await supabaseAdmin

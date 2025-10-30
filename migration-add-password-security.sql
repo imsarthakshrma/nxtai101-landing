@@ -16,10 +16,10 @@ ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS idx_admin_users_locked ON admin_users(locked_until)
 WHERE locked_until IS NOT NULL;
 
--- 4. Update existing admin users to require password change
-UPDATE admin_users
-SET must_change_password = TRUE
-WHERE must_change_password IS NULL;
+-- -- 4. Update existing admin users to require password change
+-- UPDATE admin_users
+-- SET must_change_password = TRUE
+-- WHERE must_change_password IS NULL;
 
 -- Success message
 SELECT 'Admin security enhancements applied successfully!' AS message;
