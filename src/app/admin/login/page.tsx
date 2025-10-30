@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import Image from 'next/image';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -36,7 +35,7 @@ export default function AdminLoginPage() {
 
       // Redirect to dashboard
       router.push('/admin');
-    } catch (err) {
+    } catch {
       setError('Something went wrong');
       setLoading(false);
     }

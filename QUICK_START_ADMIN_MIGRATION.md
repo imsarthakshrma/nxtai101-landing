@@ -26,11 +26,20 @@ Run in Supabase SQL Editor:
 # File: verify-admin-tables.sql
 ```
 
-### Step 5: Test Login
-1. Go to `/admin/login`
-2. Email: `admin@nxtai101.com`
-3. Password: `Hello@101`
-4. **Change password immediately!**
+### Step 5: Secure Setup
+
+⚠️ **CRITICAL SECURITY WARNING:**
+
+**DO NOT use default credentials!** Follow the secure setup process:
+
+1. **Read:** `SECURE_ADMIN_SETUP.md` for complete security guide
+2. **Generate:** Your own strong password (see guide)
+3. **Hash:** Your password using `hash-my-password.js`
+4. **Create:** Admin user with YOUR email and hashed password
+5. **Test:** Login at `/admin/login` with YOUR credentials
+6. **Delete:** All password generation scripts immediately
+
+**Default credentials (admin@nxtai101.com / Hello@101) are NEVER acceptable in production!**
 
 ---
 

@@ -4,13 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-
-interface AdminUser {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-}
+import { AdminUser } from '@/lib/admin-auth';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -26,10 +20,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
+          
+          // Redirect to password change if required (except if already on that page)
+          if (data.user.must_change_password && pathname !== '/admin/change-password') {
+            router.push('/admin/change-password');
+          }
         } else {
           router.push('/admin/login');
         }
-      } catch (error) {
+      } catch {
         router.push('/admin/login');
       } finally {
         setLoading(false);
@@ -45,8 +44,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Handle logout
   const handleLogout = async () => {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    router.push('/admin/login');
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      // Always redirect to login, even if logout API fails
+      router.push('/admin/login');
+    }
   };
 
   // Show loading or login page

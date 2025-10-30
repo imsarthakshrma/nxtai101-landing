@@ -174,7 +174,7 @@ CREATE TABLE admin_users (
   email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   name TEXT NOT NULL,
-  role TEXT DEFAULT 'admin' CHECK (role IN ('super_admin', 'admin', 'viewer')),
+  role TEXT DEFAULT 'admin' CHECK (role IN ('super_admin', 'admin', 'moderator')),
   last_login TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -381,7 +381,7 @@ src/
 - Role-based access control (RBAC)
   - **Super Admin:** Full access
   - **Admin:** Manage sessions & enrollments
-  - **Viewer:** Read-only access
+  - **Moderator:** Read-only access
 
 ### Security Measures:
 - CSRF protection

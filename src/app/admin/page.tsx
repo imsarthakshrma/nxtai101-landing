@@ -18,19 +18,28 @@ export default function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // TODO: Fetch real stats from API
-    // For now, using placeholder data
-    setTimeout(() => {
+useEffect(() => {
+  fetchStats();
+}, []);
+
+const fetchStats = async () => {
+  try {
+    const res = await fetch('/api/admin/analytics/overview');
+    if (res.ok) {
+      const data = await res.json();
       setStats({
-        totalEnrollments: 0,
-        totalRevenue: 0,
-        upcomingSessions: 3,
-        pendingPayments: 0,
+        totalEnrollments: data.totalEnrollments,
+        totalRevenue: data.totalRevenue,
+        upcomingSessions: data.upcomingSessions,
+        pendingPayments: data.pendingPayments,
       });
-      setLoading(false);
-    }, 500);
-  }, []);
+    }
+  } catch (error) {
+    console.error('Failed to fetch stats:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const statCards = [
     {
@@ -95,7 +104,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-instrument-serif text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-gray-400">Welcome back! Here's what's happening.</p>
+        <p className="text-gray-400">Welcome back! Here&apos;s what&apos;s happening.</p>
       </div>
 
       {/* Stats Grid */}

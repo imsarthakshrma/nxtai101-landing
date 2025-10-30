@@ -15,7 +15,18 @@ export interface AdminUser {
     id: string;
     email: string;
     name: string;
-    role: 'super_admin' | 'admin' | 'viewer';
+    role: 'super_admin' | 'admin' | 'moderator';
+    must_change_password?: boolean;
+}
+
+// JWT Payload validation schema
+interface JWTPayload {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    iat?: number;
+    exp?: number;
 }
 
 // Hash Password
@@ -41,12 +52,50 @@ export function generateToken(user: AdminUser): string {
     })
 }
 
+// Validate JWT payload
+function validateJWTPayload(payload: unknown): AdminUser | null {
+    if (!payload || typeof payload !== 'object') {
+        return null;
+    }
+
+    const p = payload as Record<string, unknown>;
+
+    // Validate required fields
+    if (
+        typeof p.id !== 'string' ||
+        typeof p.email !== 'string' ||
+        typeof p.name !== 'string' ||
+        typeof p.role !== 'string'
+    ) {
+        return null;
+    }
+
+    // Validate role is one of the allowed values
+    const validRoles: Array<AdminUser['role']> = ['super_admin', 'admin', 'moderator'];
+    if (!validRoles.includes(p.role as AdminUser['role'])) {
+        return null;
+    }
+
+    // Construct validated AdminUser object
+    return {
+        id: p.id,
+        email: p.email,
+        name: p.name,
+        role: p.role as AdminUser['role'],
+        must_change_password: typeof p.must_change_password === 'boolean' ? p.must_change_password : undefined,
+    };
+}
+
 // Verify JWT Token
 export function verifyToken(token: string): AdminUser | null {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as AdminUser;
-        return decoded;
-    } catch (error) {
+        // Verify and decode token
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        // Validate payload structure
+        return validateJWTPayload(decoded);
+    } catch {
+        // Invalid token, expired, or verification failed
         return null;
     }
 }
@@ -94,7 +143,7 @@ export function hasRole(user: AdminUser, requiredRole: AdminUser['role']): boole
   const roleHierarchy = {
     super_admin: 3,
     admin: 2,
-    viewer: 1,
+    moderator: 1,
   };
 
   return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
