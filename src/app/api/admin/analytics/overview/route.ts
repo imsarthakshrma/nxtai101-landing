@@ -85,7 +85,7 @@ export async function GET() {
 
     return NextResponse.json({
       totalEnrollments: totalEnrollments || 0,
-      totalRevenue: totalRevenue / 100, // Convert paise to rupees
+      totalRevenue,
       upcomingSessions: upcomingSessions || 0,
       pendingPayments: pendingPayments || 0,
     });
