@@ -54,6 +54,11 @@ const testSession = {
   current_enrollments: 1,
   price: 199,
   status: 'upcoming' as const,
+  session_type: 'spark101' as const,
+  level: 'beginner' as const,
+  description: 'Test session for email functionality',
+  tags: ['AI', 'Machine Learning'],
+  is_free: false,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };
