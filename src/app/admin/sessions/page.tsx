@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -61,10 +60,6 @@ export default function SessionsPage() {
     
     return matchesSearch && matchesStatus && matchesType;
   });
-
-  const getSessionsByType = (type: SessionType) => {
-    return filteredSessions.filter(s => s.session_type === type);
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -161,11 +156,17 @@ export default function SessionsPage() {
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all"
-                  style={{ width: `${(session.current_enrollments / session.max_capacity) * 100}%` }}
+                  style={{ 
+                    width: `${session.max_capacity > 0 
+                      ? Math.min((session.current_enrollments / session.max_capacity) * 100, 100) 
+                      : 0}%` 
+                  }}
                 />
               </div>
               <span className="text-xs text-gray-400">
-                {Math.round((session.current_enrollments / session.max_capacity) * 100)}%
+                {session.max_capacity > 0 
+                  ? Math.round((session.current_enrollments / session.max_capacity) * 100) 
+                  : 0}%
               </span>
             </div>
           </div>
@@ -220,7 +221,7 @@ export default function SessionsPage() {
           </div>
           <Button
             onClick={() => router.push('/admin/sessions/new')}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            className="bg-white text-black hover:bg-gray-100"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -286,7 +287,7 @@ export default function SessionsPage() {
           </div>
           <div>
             <label className="text-sm text-gray-400 mb-2 block">Session Type</label>
-            <Select value={selectedType} onValueChange={(v) => setSelectedType(v as any)}>
+            <Select value={selectedType} onValueChange={(v) => setSelectedType(v as SessionType | 'all')}>
               <SelectTrigger className="bg-white/[0.03] border-white/10 text-white">
                 <SelectValue />
               </SelectTrigger>

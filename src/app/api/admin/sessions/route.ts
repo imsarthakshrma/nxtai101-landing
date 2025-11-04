@@ -65,6 +65,10 @@ export async function POST(request: NextRequest) {
       price,
       status,
       is_free,
+      session_type,
+      description,
+      level,
+      tags,
     } = body;
 
     // Validate required fields
@@ -116,6 +120,10 @@ export async function POST(request: NextRequest) {
         price,
         status: status || 'upcoming',
         is_free: is_free || price === 0,
+        session_type: session_type || 'spark101',
+        description: description || null,
+        level: level || 'beginner',
+        tags: tags || null,
       })
       .select()
       .single();

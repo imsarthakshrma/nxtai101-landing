@@ -18,7 +18,6 @@ import {
   SidebarProvider,
   SidebarRail,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import { AdminUser } from '@/lib/admin-auth';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -164,7 +163,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigation.map((item) => {
-                    const isActive = pathname === item.href;
+                    // Special handling for Dashboard to avoid matching other /admin/* routes
+                    const isActive = item.href === '/admin'
+                      ? pathname === '/admin'
+                      : pathname === item.href || pathname.startsWith(`${item.href}/`);
+
                     return (
                       <SidebarMenuItem key={item.name}>
                         <SidebarMenuButton

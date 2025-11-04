@@ -13,10 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SessionType, SessionLevel, Session } from '@/types/database';
 
 export default function NewSessionPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [lastPaidPrice, setLastPaidPrice] = useState(999);
   const [formData, setFormData] = useState({
     title: '',
     session_date: '',
@@ -28,6 +30,10 @@ export default function NewSessionPage() {
     price: 999,
     status: 'upcoming',
     is_free: false,
+    session_type: 'spark101' as SessionType,
+    description: '',
+    level: 'beginner' as SessionLevel,
+    tags: [] as string[],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,29 +65,18 @@ export default function NewSessionPage() {
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
+    const newValue = type === 'number' ? parseInt(value) || 0 : value;
     
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({
-        ...prev,
-        [name]: checked,
-        // If marking as free, set price to 0
-        ...(name === 'is_free' && checked ? { price: 0 } : {}),
-      }));
-    } else if (type === 'number') {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: parseInt(value) || 0,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue,
+    }));
+    
+    // Track last paid price when price is changed and not free
+    if (name === 'price' && typeof newValue === 'number' && newValue > 0 && !formData.is_free) {
+      setLastPaidPrice(newValue);
     }
   };
 
@@ -251,13 +246,106 @@ export default function NewSessionPage() {
                 setFormData((prev) => ({
                   ...prev,
                   is_free: checked,
-                  price: checked ? 0 : 999,
+                  price: checked ? 0 : lastPaidPrice,
                 }));
               }}
             />
             <Label htmlFor="is_free" className="text-sm text-gray-300 cursor-pointer">
               This is a free session (no payment required)
             </Label>
+          </div>
+
+          {/* Session Type & Level */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="session_type" className="text-gray-300">
+                Session Type *
+              </Label>
+              <Select
+                value={formData.session_type}
+                onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, session_type: value as SessionType }));
+                }}
+              >
+                <SelectTrigger className="bg-white/[0.03] border-white/10 text-white">
+                  <SelectValue placeholder="Select session type" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-white/10">
+                  <SelectItem value="spark101" className="text-white focus:bg-white/10 focus:text-white">
+                    ⚡ Spark 101
+                  </SelectItem>
+                  <SelectItem value="framework101" className="text-white focus:bg-white/10 focus:text-white">
+                    🔧 Framework 101
+                  </SelectItem>
+                  <SelectItem value="summit101" className="text-white focus:bg-white/10 focus:text-white">
+                    🏔️ Summit 101
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="level" className="text-gray-300">
+                Level *
+              </Label>
+              <Select
+                value={formData.level}
+                onValueChange={(value) => {
+                  setFormData((prev) => ({ ...prev, level: value as SessionLevel }));
+                }}
+              >
+                <SelectTrigger className="bg-white/[0.03] border-white/10 text-white">
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-white/10">
+                  <SelectItem value="beginner" className="text-white focus:bg-white/10 focus:text-white">
+                    Beginner
+                  </SelectItem>
+                  <SelectItem value="intermediate" className="text-white focus:bg-white/10 focus:text-white">
+                    Intermediate
+                  </SelectItem>
+                  <SelectItem value="advanced" className="text-white focus:bg-white/10 focus:text-white">
+                    Advanced
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-gray-300">
+              Description
+            </Label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              rows={4}
+              className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 text-white rounded-lg focus:border-purple-500/50 focus:ring-purple-500/20 resize-none"
+              placeholder="Describe what students will learn in this session..."
+            />
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-2">
+            <Label htmlFor="tags" className="text-gray-300">
+              Tags (comma-separated)
+            </Label>
+            <Input
+              type="text"
+              name="tags"
+              value={formData.tags.join(', ')}
+              onChange={(e) => {
+                const tagsArray = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+                setFormData((prev) => ({ ...prev, tags: tagsArray }));
+              }}
+              className="bg-white/[0.03] border-white/10 text-white"
+              placeholder="AI, Machine Learning, Python"
+            />
+            <p className="text-xs text-gray-500">
+              Separate tags with commas
+            </p>
           </div>
 
           {/* Status */}
@@ -268,7 +356,7 @@ export default function NewSessionPage() {
             <Select
               value={formData.status}
               onValueChange={(value) => {
-                setFormData((prev) => ({ ...prev, status: value as any }));
+                setFormData((prev) => ({ ...prev, status: value as Session['status'] }));
               }}
             >
               <SelectTrigger className="bg-white/[0.03] border-white/10 text-white">
@@ -296,7 +384,7 @@ export default function NewSessionPage() {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+              className="bg-white text-black hover:bg-gray-100 disabled:opacity-50"
             >
               {saving ? 'Creating...' : 'Create Session'}
             </Button>

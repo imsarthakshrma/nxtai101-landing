@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Session } from '@/types/database';
@@ -16,13 +16,7 @@ export default function SessionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    if (params.id) {
-      fetchSession();
-    }
-  }, [params.id]);
-
-  const fetchSession = async () => {
+  const fetchSession = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/sessions/${params.id}`);
       if (res.ok) {
@@ -37,7 +31,13 @@ export default function SessionDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id, router]);
+
+  useEffect(() => {
+    if (params.id) {
+      fetchSession();
+    }
+  }, [params.id, fetchSession]);
 
   const handleDelete = async () => {
     if (!session) return;
@@ -166,7 +166,7 @@ export default function SessionDetailPage() {
         <div className="flex gap-3">
           <Button
             onClick={() => router.push(`/admin/sessions/${params.id}/edit`)}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            className="bg-white text-black hover:bg-gray-100"
           >
             Edit Session
           </Button>

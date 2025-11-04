@@ -17,7 +17,8 @@ export async function GET() {
         *,
         sessions (
           title,
-          session_date
+          session_date,
+          session_type
         )
       `)
       .order('enrolled_at', { ascending: false });
@@ -35,6 +36,7 @@ export async function GET() {
       ...enrollment,
       session_title: enrollment.sessions?.title || 'Unknown Session',
       session_date: enrollment.sessions?.session_date || null,
+      session_type: enrollment.sessions?.session_type || 'spark101',
     }));
 
     // Log activity (non-blocking, fire-and-forget)
