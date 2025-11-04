@@ -276,7 +276,7 @@ export default function EnrollmentsPage() {
           </div>
           <div>
             <label className="text-sm text-gray-400 mb-2 block">Session Type</label>
-            <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as any)}>
+            <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as SessionType | 'all')}>
               <SelectTrigger className="bg-white/[0.03] border-white/10 text-white">
                 <SelectValue />
               </SelectTrigger>

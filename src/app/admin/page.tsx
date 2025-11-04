@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { SESSION_TYPE_CONFIG, SessionType } from '@/types/database';
 
 interface DashboardStats {
   totalEnrollments: number;
