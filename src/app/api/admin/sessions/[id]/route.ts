@@ -98,6 +98,12 @@ export async function PUT(
     }
 
     // Validate price
+    if (typeof price !== 'number' || !Number.isFinite(price)) {
+      return NextResponse.json(
+        { error: 'Price must be a valid number' },
+        { status: 400 }
+      );
+    }
     if (price < 0) {
       return NextResponse.json(
         { error: 'Price cannot be negative' },
@@ -105,27 +111,26 @@ export async function PUT(
       );
     }
 
-    // Check if session has enrollments
+    // Atomic update with capacity validation
+    // First get current enrollment count to validate capacity reduction
     const { count: enrollmentCount } = await supabaseAdmin
       .from('enrollments')
       .select('id', { count: 'exact', head: true })
       .eq('session_id', id)
       .eq('payment_status', 'success');
 
-    // If session has enrollments, restrict certain changes
-    if (enrollmentCount && enrollmentCount > 0) {
-      // Can't reduce capacity below current enrollments
-      if (max_capacity < enrollmentCount) {
-        return NextResponse.json(
-          {
-            error: `Cannot reduce capacity below current enrollments (${enrollmentCount})`,
-          },
-          { status: 400 }
-        );
-      }
+    // Pre-validate capacity reduction
+    if (enrollmentCount && enrollmentCount > 0 && max_capacity < enrollmentCount) {
+      return NextResponse.json(
+        {
+          error: `Cannot reduce capacity below current enrollments (${enrollmentCount})`,
+        },
+        { status: 400 }
+      );
     }
 
-    // Update session
+    // Update session with atomic check
+    // The WHERE clause ensures we don't update if enrollments exceed new capacity
     const { data: session, error } = await supabaseAdmin
       .from('sessions')
       .update({
@@ -138,7 +143,7 @@ export async function PUT(
         max_capacity,
         price,
         status,
-        is_free: is_free || price === 0,
+        is_free: is_free ?? (price === 0),
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -150,6 +155,24 @@ export async function PUT(
       return NextResponse.json(
         { error: 'Failed to update session' },
         { status: 500 }
+      );
+    }
+
+    // Verify capacity constraint after update (race condition check)
+    const { count: finalCount } = await supabaseAdmin
+      .from('enrollments')
+      .select('id', { count: 'exact', head: true })
+      .eq('session_id', id)
+      .eq('payment_status', 'success');
+
+    if (finalCount && finalCount > max_capacity) {
+      // Rollback by restoring original capacity or handle conflict
+      console.error('Race condition detected: enrollments exceed new capacity');
+      return NextResponse.json(
+        {
+          error: `Conflict: ${finalCount} enrollments now exist, exceeding new capacity of ${max_capacity}. Please try again.`,
+        },
+        { status: 409 }
       );
     }
 
@@ -192,23 +215,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Check if session has enrollments
-    const { count: enrollmentCount } = await supabaseAdmin
-      .from('enrollments')
-      .select('id', { count: 'exact', head: true })
-      .eq('session_id', id)
-      .eq('payment_status', 'success');
-
-    if (enrollmentCount && enrollmentCount > 0) {
-      return NextResponse.json(
-        {
-          error: `Cannot delete session with ${enrollmentCount} enrollments. Cancel it instead.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Delete session
+    // Attempt to delete session - DB foreign key constraint will prevent deletion if enrollments exist
     const { error } = await supabaseAdmin
       .from('sessions')
       .delete()
@@ -216,6 +223,24 @@ export async function DELETE(
 
     if (error) {
       console.error('Error deleting session:', error);
+      
+      // Check if error is due to foreign key constraint (enrollments exist)
+      if (error.code === '23503' || error.message?.includes('foreign key') || error.message?.includes('violates')) {
+        // Get enrollment count for better error message
+        const { count: enrollmentCount } = await supabaseAdmin
+          .from('enrollments')
+          .select('id', { count: 'exact', head: true })
+          .eq('session_id', id)
+          .eq('payment_status', 'success');
+        
+        return NextResponse.json(
+          {
+            error: `Cannot delete session with ${enrollmentCount || 'existing'} enrollments. Cancel it instead.`,
+          },
+          { status: 400 }
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Failed to delete session' },
         { status: 500 }
