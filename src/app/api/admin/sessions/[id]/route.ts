@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 // GET single session
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await getCurrentAdmin();
@@ -13,10 +13,12 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const { data: session, error } = await supabaseAdmin
       .from('sessions')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (error) {
@@ -31,7 +33,7 @@ export async function GET(
     const { count: enrollmentCount } = await supabaseAdmin
       .from('enrollments')
       .select('id', { count: 'exact', head: true })
-      .eq('session_id', params.id)
+      .eq('session_id', id)
       .eq('payment_status', 'success');
 
     // Log activity (non-blocking)
@@ -39,7 +41,7 @@ export async function GET(
       admin_id: admin.id,
       action: 'view_session',
       entity_type: 'session',
-      entity_id: params.id,
+      entity_id: id,
     }).then(({ error: logError }) => {
       if (logError) {
         console.error('Failed to log activity:', logError);
@@ -64,7 +66,7 @@ export async function GET(
 // PUT update session
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await getCurrentAdmin();
@@ -72,6 +74,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const {
       title,
@@ -130,15 +133,15 @@ export async function PUT(
         session_date,
         duration_minutes,
         zoom_link,
-        zoom_meeting_id,
-        zoom_passcode,
+        zoom_meeting_id: zoom_meeting_id || null,
+        zoom_passcode: zoom_passcode || null,
         max_capacity,
         price,
         status,
         is_free: is_free || price === 0,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -179,7 +182,7 @@ export async function PUT(
 // DELETE session
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await getCurrentAdmin();
@@ -187,11 +190,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
+
     // Check if session has enrollments
     const { count: enrollmentCount } = await supabaseAdmin
       .from('enrollments')
       .select('id', { count: 'exact', head: true })
-      .eq('session_id', params.id)
+      .eq('session_id', id)
       .eq('payment_status', 'success');
 
     if (enrollmentCount && enrollmentCount > 0) {
@@ -207,7 +212,7 @@ export async function DELETE(
     const { error } = await supabaseAdmin
       .from('sessions')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       console.error('Error deleting session:', error);
