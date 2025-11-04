@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentAdmin, hashPassword, verifyPassword, generateToken, setAuthCookie, AdminUser } from '@/lib/admin-auth';
+import { getCurrentAdmin, hashPassword, verifyPassword, generateToken, setAuthCookie } from '@/lib/admin-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getClientIP } from '@/lib/rate-limit';
 

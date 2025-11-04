@@ -75,7 +75,7 @@ export default function ChangePasswordPage() {
 
       // Redirect to dashboard on success
       router.push('/admin');
-    } catch (err) {
+    } catch {
       setError('Something went wrong');
       setLoading(false);
     }
@@ -180,7 +180,7 @@ export default function ChangePasswordPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-xl transition-all duration-200"
+              className="w-full h-12 bg-white text-black hover:bg-gray-100 font-medium rounded-xl transition-all duration-200 disabled:opacity-50"
             >
               {loading ? 'Changing Password...' : 'Change Password'}
             </Button>

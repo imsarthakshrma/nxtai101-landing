@@ -20,6 +20,7 @@ export interface AdminUser {
 }
 
 // JWT Payload validation schema
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface JWTPayload {
     id: string;
     email: string;

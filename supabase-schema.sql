@@ -138,23 +138,31 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_session_email_success
 
 -- Create function to increment session enrollments
 CREATE OR REPLACE FUNCTION increment_session_enrollments(session_id UUID)
-RETURNS VOID AS $$
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   UPDATE sessions
   SET current_enrollments = current_enrollments + 1,
       updated_at = NOW()
   WHERE id = session_id;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Create function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Create triggers for updated_at
 CREATE TRIGGER update_admin_users_updated_at

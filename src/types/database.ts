@@ -1,3 +1,6 @@
+export type SessionType = 'spark101' | 'framework101' | 'summit101';
+export type SessionLevel = 'beginner' | 'intermediate' | 'advanced';
+
 export interface Session {
   id: string;
   title: string;
@@ -10,9 +13,38 @@ export interface Session {
   current_enrollments: number;
   price: number;
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  session_type: SessionType;
+  level: SessionLevel;
+  description: string | null;
+  tags: string[] | null;
+  is_free: boolean;
   created_at: string;
   updated_at: string;
 }
+
+export const SESSION_TYPE_CONFIG = {
+  spark101: {
+    name: 'Spark 101',
+    description: 'Introduction to AI & ML',
+    color: 'purple',
+    icon: '⚡',
+    level: 'beginner' as SessionLevel,
+  },
+  framework101: {
+    name: 'Framework 101',
+    description: 'Deep dive into AI Frameworks',
+    color: 'blue',
+    icon: '🔧',
+    level: 'intermediate' as SessionLevel,
+  },
+  summit101: {
+    name: 'Summit 101',
+    description: 'Advanced AI Applications',
+    color: 'emerald',
+    icon: '🏔️',
+    level: 'advanced' as SessionLevel,
+  },
+} as const;
 
 export interface Enrollment {
   id: string;
