@@ -109,7 +109,7 @@ export async function PUT(
     const { count: enrollmentCount } = await supabaseAdmin
       .from('enrollments')
       .select('id', { count: 'exact', head: true })
-      .eq('session_id', params.id)
+      .eq('session_id', id)
       .eq('payment_status', 'success');
 
     // If session has enrollments, restrict certain changes
@@ -158,7 +158,7 @@ export async function PUT(
       admin_id: admin.id,
       action: 'update_session',
       entity_type: 'session',
-      entity_id: params.id,
+      entity_id: id,
     }).then(({ error: logError }) => {
       if (logError) {
         console.error('Failed to log activity:', logError);
@@ -227,7 +227,7 @@ export async function DELETE(
       admin_id: admin.id,
       action: 'delete_session',
       entity_type: 'session',
-      entity_id: params.id,
+      entity_id: id,
     }).then(({ error: logError }) => {
       if (logError) {
         console.error('Failed to log activity:', logError);
