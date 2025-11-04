@@ -3,7 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+} from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
 import { AdminUser } from '@/lib/admin-auth';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -112,76 +127,109 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-inter">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white/[0.02] backdrop-blur-xl border-r border-white/5 flex flex-col">
-        {/* Logo */}
-        <div className="p-6 border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-white/10 flex items-center justify-center">
-              <span className="text-purple-400 font-bold text-lg">N</span>
-            </div>
-            <div>
-              <h1 className="font-instrument-serif text-lg font-bold">NXTAI101</h1>
-              <p className="text-xs text-gray-500">Admin</p>
-            </div>
-          </div>
-        </div>
+    <SidebarProvider>
+      <div className="min-h-screen bg-[#0a0a0a] text-white font-inter flex w-full">
+        {/* Sidebar */}
+        <Sidebar className="border-r border-white/5 bg-white/[0.02] backdrop-blur-xl">
+          {/* Logo Header */}
+          <SidebarHeader className="p-6 border-b border-white/5">
+            <Link href="/admin" className="flex items-center gap-3 group hover:opacity-80 transition-opacity">
+              {/* <div className="relative w-10 h-10 flex-shrink-0">
+                <Image
+                  src="/images/trans-logo.png"
+                  alt="NXTAI101 Logo"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                  priority
+                />
+              </div> */}
+              <div className="flex flex-1 justify-center">
+                <Image
+                  src="/images/typo-logo.png"
+                  alt="NXTAI101"
+                  width={100}
+                  height={20}
+                  className="object-contain object-left"
+                  priority
+                />
+              </div>
+            </Link>
+            <p className="text-xs text-gray-500 mt-2 pl-[52px]">Admin Dashboard</p>
+          </SidebarHeader>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.comingSoon ? '#' : item.href}
-                className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                  ${isActive 
-                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/[0.03]'
-                  }
-                  ${item.comingSoon ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
+          {/* Navigation */}
+          <SidebarContent className="px-3 py-4">
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {navigation.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <SidebarMenuItem key={item.name}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive}
+                          disabled={item.comingSoon}
+                          className={`
+                            ${isActive 
+                              ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/15 hover:text-purple-300' 
+                              : 'text-gray-400 hover:text-white hover:bg-white/[0.03]'
+                            }
+                            ${item.comingSoon ? 'opacity-50 cursor-not-allowed' : ''}
+                          `}
+                        >
+                          <Link href={item.comingSoon ? '#' : item.href} className="flex items-center gap-3 w-full">
+                            {item.icon}
+                            <span className="font-medium">{item.name}</span>
+                            {item.comingSoon && (
+                              <span className="ml-auto text-xs bg-white/5 px-2 py-0.5 rounded-full">
+                                Soon
+                              </span>
+                            )}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+
+          {/* User Profile */}
+          <SidebarFooter className="p-4 border-t border-white/5">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/[0.03] transition-colors">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate text-white">{user.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                className="w-full bg-white/[0.03] border-white/10 text-gray-400 hover:text-white hover:bg-white/[0.05] hover:border-white/20 transition-all"
               >
-                {item.icon}
-                <span className="font-medium">{item.name}</span>
-                {item.comingSoon && (
-                  <span className="ml-auto text-xs bg-white/5 px-2 py-0.5 rounded-full">
-                    Soon
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* User Profile */}
-        <div className="p-4 border-t border-white/5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-sm font-bold">
-              {user.name.charAt(0).toUpperCase()}
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sign out
+              </Button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
-            </div>
-          </div>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            className="w-full h-9 bg-white/[0.03] border-white/10 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-lg text-sm"
-          >
-            Sign out
-          </Button>
-        </div>
-      </aside>
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
 
-      {/* Main Content */}
-      <main className="ml-64 min-h-screen">
-        {children}
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="flex-1 min-h-screen">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

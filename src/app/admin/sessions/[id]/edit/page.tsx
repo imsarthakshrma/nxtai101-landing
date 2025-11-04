@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,10 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Session } from '@/types/database';
 
-export default function NewSessionPage() {
+export default function EditSessionPage() {
   const router = useRouter();
+  const params = useParams();
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     session_date: '',
@@ -25,18 +29,58 @@ export default function NewSessionPage() {
     zoom_meeting_id: '',
     zoom_passcode: '',
     max_capacity: 100,
-    price: 999,
-    status: 'upcoming',
+    price: 0,
+    status: 'upcoming' as Session['status'],
     is_free: false,
   });
+
+  useEffect(() => {
+    if (params.id) {
+      fetchSession();
+    }
+  }, [params.id]);
+
+  const fetchSession = async () => {
+    try {
+      const res = await fetch(`/api/admin/sessions/${params.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSession(data.session);
+        
+        // Format date for datetime-local input
+        const sessionDate = new Date(data.session.session_date);
+        const formattedDate = sessionDate.toISOString().slice(0, 16);
+        
+        setFormData({
+          title: data.session.title,
+          session_date: formattedDate,
+          duration_minutes: data.session.duration_minutes,
+          zoom_link: data.session.zoom_link,
+          zoom_meeting_id: data.session.zoom_meeting_id || '',
+          zoom_passcode: data.session.zoom_passcode || '',
+          max_capacity: data.session.max_capacity,
+          price: data.session.price,
+          status: data.session.status,
+          is_free: data.session.is_free || data.session.price === 0,
+        });
+      } else {
+        router.push('/admin/sessions');
+      }
+    } catch (error) {
+      console.error('Failed to fetch session:', error);
+      router.push('/admin/sessions');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
-      const res = await fetch('/api/admin/sessions', {
-        method: 'POST',
+      const res = await fetch(`/api/admin/sessions/${params.id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
@@ -45,15 +89,14 @@ export default function NewSessionPage() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        router.push(`/admin/sessions/${data.session.id}`);
+        router.push(`/admin/sessions/${params.id}`);
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to create session');
+        alert(data.error || 'Failed to update session');
       }
     } catch (error) {
-      console.error('Failed to create session:', error);
-      alert('Failed to create session');
+      console.error('Failed to update session:', error);
+      alert('Failed to update session');
     } finally {
       setSaving(false);
     }
@@ -85,33 +128,56 @@ export default function NewSessionPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-white/5 rounded-lg w-64"></div>
+          <div className="h-96 bg-white/5 rounded-xl"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="p-8">
+        <div className="text-center">
+          <h2 className="text-xl font-bold mb-2">Session not found</h2>
+          <Button onClick={() => router.push('/admin/sessions')}>
+            Back to Sessions
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
         <Button
-          onClick={() => router.push('/admin/sessions')}
+          onClick={() => router.push(`/admin/sessions/${params.id}`)}
           variant="ghost"
           className="mb-4 text-gray-400 hover:text-white"
         >
-          ← Back to Sessions
+          ← Back to Session
         </Button>
         <h1 className="font-instrument-serif text-3xl font-bold mb-2">
-          Create New Session
+          Edit Session
         </h1>
-        <p className="text-gray-400">Add a new Spark 101 session</p>
+        <p className="text-gray-400">Update session details</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="max-w-3xl">
         <div className="bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl p-6 space-y-6">
           {/* Title */}
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-gray-300">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Session Title *
-            </Label>
+            </label>
             <Input
-              id="title"
               type="text"
               name="title"
               value={formData.title}
@@ -124,12 +190,11 @@ export default function NewSessionPage() {
 
           {/* Date & Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="session_date" className="text-gray-300">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Date & Time *
-              </Label>
+              </label>
               <Input
-                id="session_date"
                 type="datetime-local"
                 name="session_date"
                 value={formData.session_date}
@@ -138,12 +203,11 @@ export default function NewSessionPage() {
                 className="bg-white/[0.03] border-white/10 text-white"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="duration_minutes" className="text-gray-300">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Duration (minutes) *
-              </Label>
+              </label>
               <Input
-                id="duration_minutes"
                 type="number"
                 name="duration_minutes"
                 value={formData.duration_minutes}
@@ -160,12 +224,11 @@ export default function NewSessionPage() {
             <h3 className="font-instrument-serif text-lg font-bold">
               Zoom Meeting Details
             </h3>
-            <div className="space-y-2">
-              <Label htmlFor="zoom_link" className="text-gray-300">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Zoom Link *
-              </Label>
+              </label>
               <Input
-                id="zoom_link"
                 type="url"
                 name="zoom_link"
                 value={formData.zoom_link}
@@ -176,12 +239,11 @@ export default function NewSessionPage() {
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="zoom_meeting_id" className="text-gray-300">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Meeting ID (optional)
-                </Label>
+                </label>
                 <Input
-                  id="zoom_meeting_id"
                   type="text"
                   name="zoom_meeting_id"
                   value={formData.zoom_meeting_id}
@@ -190,12 +252,11 @@ export default function NewSessionPage() {
                   placeholder="123 456 7890"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="zoom_passcode" className="text-gray-300">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Passcode (optional)
-                </Label>
+                </label>
                 <Input
-                  id="zoom_passcode"
                   type="text"
                   name="zoom_passcode"
                   value={formData.zoom_passcode}
@@ -209,27 +270,30 @@ export default function NewSessionPage() {
 
           {/* Capacity & Pricing */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="max_capacity" className="text-gray-300">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Max Capacity *
-              </Label>
+              </label>
               <Input
-                id="max_capacity"
                 type="number"
                 name="max_capacity"
                 value={formData.max_capacity}
                 onChange={handleChange}
                 required
-                min="1"
+                min={session.current_enrollments}
                 className="bg-white/[0.03] border-white/10 text-white"
               />
+              {session.current_enrollments > 0 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Current enrollments: {session.current_enrollments}
+                </p>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="price" className="text-gray-300">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Price (₹) *
-              </Label>
+              </label>
               <Input
-                id="price"
                 type="number"
                 name="price"
                 value={formData.price}
@@ -251,7 +315,7 @@ export default function NewSessionPage() {
                 setFormData((prev) => ({
                   ...prev,
                   is_free: checked,
-                  price: checked ? 0 : 999,
+                  price: checked ? 0 : prev.price,
                 }));
               }}
             />
@@ -291,6 +355,16 @@ export default function NewSessionPage() {
             </Select>
           </div>
 
+          {/* Warning for sessions with enrollments */}
+          {session.current_enrollments > 0 && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+              <p className="text-yellow-400 text-sm">
+                ⚠️ This session has {session.current_enrollments} enrollments. 
+                Significant changes may affect enrolled users.
+              </p>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-3 pt-4">
             <Button
@@ -298,11 +372,11 @@ export default function NewSessionPage() {
               disabled={saving}
               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
             >
-              {saving ? 'Creating...' : 'Create Session'}
+              {saving ? 'Saving...' : 'Save Changes'}
             </Button>
             <Button
               type="button"
-              onClick={() => router.push('/admin/sessions')}
+              onClick={() => router.push(`/admin/sessions/${params.id}`)}
               variant="outline"
               className="border-white/10 text-gray-300 hover:text-white hover:bg-white/[0.05]"
             >
