@@ -88,11 +88,18 @@ const scriptLoaded = await loadRazorpayScript();
 ```
 
 **Button Text:**
+
+Initial form button:
+```tsx
+Review Details →
+```
+
+Review screen confirmation button:
 ```tsx
 {session.is_free || session.price === 0 ? (
-  'Confirm Enrollment'
+  '✓ Confirm & Enroll'
 ) : (
-  'Proceed to Payment'
+  '✓ Confirm & Pay'
 )}
 ```
 

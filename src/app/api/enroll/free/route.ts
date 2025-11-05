@@ -1,7 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendConfirmationEmail } from '@/lib/email';
-import type { Session, CreateEnrollmentData } from '@/types/database';
+import type { Session } from '@/types/database';
+import { randomUUID } from 'crypto';
+
+// Type for the RPC function result
+interface FreeEnrollmentResult {
+  enrollment_id: string;
+  enrollment_data: {
+    id: string;
+    session_id: string;
+    name: string;
+    email: string;
+    phone: string;
+    company: string | null;
+    linkedin_url: string | null;
+    razorpay_order_id: string;
+    amount_paid: number;
+    currency: string;
+    payment_status: 'success';
+    enrolled_at: string;
+  };
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,78 +63,73 @@ export async function POST(request: NextRequest) {
 
     const typedSession = session as Session;
 
-    // Validate session is free
-    if (!typedSession.is_free && typedSession.price > 0) {
+    // Validate session is free (use is_free as authoritative)
+    if (!typedSession.is_free) {
       return NextResponse.json(
         { error: 'This session requires payment' },
         { status: 400 }
       );
     }
 
-    // Check if session is full
-    if (typedSession.current_enrollments >= typedSession.max_capacity) {
-      return NextResponse.json(
-        { error: 'Session is full' },
-        { status: 400 }
-      );
-    }
+    // Generate unique order ID using UUID
+    const uniqueOrderId = `free_${randomUUID()}`;
 
-    // Check if user already enrolled
-    const { data: existingEnrollment } = await supabaseAdmin
-      .from('enrollments')
-      .select('id, payment_status')
-      .eq('session_id', session_id)
-      .eq('email', email)
-      .eq('payment_status', 'success')
-      .maybeSingle();
-
-    if (existingEnrollment) {
-      return NextResponse.json(
-        { error: 'You are already enrolled in this session' },
-        { status: 400 }
-      );
-    }
-
-    // Create enrollment record with success status for free sessions
-    const enrollmentData: CreateEnrollmentData = {
-      session_id,
-      name,
-      email,
-      phone,
-      company: company || null,
-      linkedin_url: linkedin_url || null,
-      razorpay_order_id: `free_${Date.now()}`,
-      razorpay_payment_id: null,
-      amount_paid: 0,
-      currency: 'INR',
-      payment_status: 'success', // Free sessions are immediately successful
-    };
-
-    const { data: enrollment, error: enrollmentError } = await supabaseAdmin
-      .from('enrollments')
-      .insert(enrollmentData)
-      .select()
+    // Use atomic database function to create enrollment and increment count
+    // This prevents race conditions and ensures data consistency
+    const { data, error: enrollmentError } = await supabaseAdmin
+      .rpc('create_free_enrollment', {
+        p_session_id: session_id,
+        p_name: name,
+        p_email: email,
+        p_phone: phone,
+        p_company: company || null,
+        p_linkedin_url: linkedin_url || null,
+        p_razorpay_order_id: uniqueOrderId,
+      })
       .single();
+    
+    const result = data as FreeEnrollmentResult | null;
 
     if (enrollmentError) {
       console.error('Error creating enrollment:', enrollmentError);
+      
+      // Handle specific error cases
+      if (enrollmentError.message?.includes('Session is full')) {
+        return NextResponse.json(
+          { error: 'Session is full' },
+          { status: 400 }
+        );
+      }
+      
+      if (enrollmentError.message?.includes('Already enrolled')) {
+        return NextResponse.json(
+          { error: 'You are already enrolled in this session' },
+          { status: 400 }
+        );
+      }
+      
+      if (enrollmentError.message?.includes('requires payment')) {
+        return NextResponse.json(
+          { error: 'This session requires payment' },
+          { status: 400 }
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Failed to create enrollment' },
         { status: 500 }
       );
     }
 
-    // Increment current_enrollments
-    const { error: updateError } = await supabaseAdmin
-      .from('sessions')
-      .update({
-        current_enrollments: typedSession.current_enrollments + 1,
-      })
-      .eq('id', session_id);
-
-    if (updateError) {
-      console.error('Error updating session enrollment count:', updateError);
+    // Extract enrollment data from function result
+    if (!result) {
+      return NextResponse.json(
+        { error: 'Failed to create enrollment - no data returned' },
+        { status: 500 }
+      );
     }
+
+    const enrollment = result.enrollment_data;
 
     // Send confirmation email (non-blocking)
     sendConfirmationEmail(enrollment, typedSession)
