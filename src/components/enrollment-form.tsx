@@ -58,8 +58,9 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
   });
 
   const [loading, setLoading] = useState(false);
+  const [showReview, setShowReview] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleReview(e: React.FormEvent) {
     e.preventDefault();
 
     // Validate required fields
@@ -82,10 +83,41 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
       return;
     }
 
+    // Show review screen
+    setShowReview(true);
+  }
+
+  async function handleConfirmSubmit() {
+
     try {
       setLoading(true);
 
-      // Load Razorpay script
+      // Check if session is free
+      const isFreeSession = session.is_free || session.price === 0;
+
+      if (isFreeSession) {
+        // Handle free session enrollment
+        const enrollRes = await fetch('/api/enroll/free', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: session.id,
+            user_info: formData,
+          }),
+        });
+
+        const enrollData = await enrollRes.json();
+
+        if (!enrollData.success) {
+          throw new Error(enrollData.error || 'Failed to enroll');
+        }
+
+        toast.success('Enrollment successful!');
+        onSuccess(enrollData.enrollment_id);
+        return;
+      }
+
+      // Load Razorpay script for paid sessions
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         toast.error('Failed to load payment gateway');
@@ -181,8 +213,148 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
     });
   }
 
+  if (showReview) {
+    return (
+      <div className="space-y-6">
+        {/* Review Header */}
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Review Your Details</h3>
+          <p className="text-sm text-gray-600">Please verify all information is correct before confirming</p>
+        </div>
+
+        {/* Session Details */}
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6">
+          <h4 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-3">Session Details</h4>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Session:</span>
+              <span className="font-semibold text-gray-900">{session.title}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Date:</span>
+              <span className="font-semibold text-gray-900">
+                {new Date(session.session_date).toLocaleDateString('en-IN', {
+                  weekday: 'long',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Time:</span>
+              <span className="font-semibold text-gray-900">
+                {new Date(session.session_date).toLocaleTimeString('en-IN', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })} IST
+              </span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-indigo-200">
+              <span className="text-gray-600">Amount:</span>
+              {session.is_free || session.price === 0 ? (
+                <span className="text-xl font-bold text-green-600">FREE</span>
+              ) : (
+                <span className="text-xl font-bold text-indigo-600">₹{session.price}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Personal Details */}
+        <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Your Details</h4>
+            <button
+              type="button"
+              onClick={() => setShowReview(false)}
+              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+            >
+              ✏️ Edit
+            </button>
+          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between py-2 border-b border-gray-100">
+              <span className="text-gray-600">Name:</span>
+              <span className="font-semibold text-gray-900">{formData.name}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-100">
+              <span className="text-gray-600">Email:</span>
+              <span className="font-semibold text-gray-900">{formData.email}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-100">
+              <span className="text-gray-600">Phone:</span>
+              <span className="font-semibold text-gray-900">{formData.phone}</span>
+            </div>
+            {formData.company && (
+              <div className="flex justify-between py-2 border-b border-gray-100">
+                <span className="text-gray-600">Company:</span>
+                <span className="font-semibold text-gray-900">{formData.company}</span>
+              </div>
+            )}
+            {formData.linkedin_url && (
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">LinkedIn:</span>
+                <span className="font-semibold text-gray-900 truncate max-w-xs">{formData.linkedin_url}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Confirmation Notice */}
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-blue-900 mb-1">Confirmation Email</p>
+              <p className="text-xs text-blue-700">
+                Session details and meeting link will be sent to <span className="font-semibold">{formData.email}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowReview(false)}
+            disabled={loading}
+            className="flex-1 h-12 text-base font-semibold border-2 hover:bg-gray-50"
+          >
+            ← Back to Edit
+          </Button>
+          <Button
+            type="button"
+            onClick={handleConfirmSubmit}
+            disabled={loading}
+            className="flex-1 h-12 text-base font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 font-medium text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              </span>
+            ) : session.is_free || session.price === 0 ? (
+              '✓ Confirm & Enroll'
+            ) : (
+              '✓ Confirm & Pay'
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleReview} className="space-y-6">
       {/* Selected Session Card */}
       <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-start justify-between">
@@ -213,8 +385,17 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
             </div>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-indigo-600">₹199</p>
-            <p className="text-xs text-gray-500">One-time payment</p>
+            {session.is_free || session.price === 0 ? (
+              <>
+                <p className="text-2xl font-bold text-green-600">FREE</p>
+                <p className="text-xs text-gray-500">No payment required</p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-indigo-600">₹{session.price}</p>
+                <p className="text-xs text-gray-500">One-time payment</p>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -311,17 +492,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
           disabled={loading}
           className="flex-1 h-12 text-base font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
         >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-2 h-5 w-5 font-medium text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Processing...
-            </span>
-          ) : (
-            'Proceed to Payment'
-          )}
+          Review Details →
         </Button>
       </div>
     </form>
