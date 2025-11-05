@@ -81,9 +81,11 @@ export interface CreateEnrollmentData {
   name: string;
   email: string;
   phone: string;
-  company?: string;
-  linkedin_url?: string;
+  company?: string | null;
+  linkedin_url?: string | null;
   razorpay_order_id: string;
+  razorpay_payment_id?: string | null;
   amount_paid: number;
   currency: string;
+  payment_status?: 'pending' | 'success' | 'failed' | 'refunded';
 }
