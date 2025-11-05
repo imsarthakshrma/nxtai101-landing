@@ -108,10 +108,14 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
 
         const enrollData = await enrollRes.json();
 
-        if (!enrollData.success) {
+        if (!enrollRes.ok || !enrollData.success) {
+          console.error('Free enrollment error:', enrollData);
           throw new Error(enrollData.error || 'Failed to enroll');
         }
 
+        console.log('Free enrollment successful:', enrollData);
+
+        // Skip Razorpay for free sessions
         toast.success('Enrollment successful!');
         onSuccess(enrollData.enrollment_id);
         return;
@@ -248,6 +252,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
                   hour: 'numeric',
                   minute: '2-digit',
                   hour12: true,
+                  timeZone: 'Asia/Kolkata',
                 })} IST
               </span>
             </div>
@@ -380,6 +385,7 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
                   hour: 'numeric',
                   minute: '2-digit',
                   hour12: true,
+                  timeZone: 'Asia/Kolkata',
                 })} IST
               </span>
             </div>
