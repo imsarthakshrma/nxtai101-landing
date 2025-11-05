@@ -85,7 +85,32 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
     try {
       setLoading(true);
 
-      // Load Razorpay script
+      // Check if session is free
+      const isFreeSession = session.is_free || session.price === 0;
+
+      if (isFreeSession) {
+        // Handle free session enrollment
+        const enrollRes = await fetch('/api/enroll/free', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: session.id,
+            user_info: formData,
+          }),
+        });
+
+        const enrollData = await enrollRes.json();
+
+        if (!enrollData.success) {
+          throw new Error(enrollData.error || 'Failed to enroll');
+        }
+
+        toast.success('Enrollment successful!');
+        onSuccess(enrollData.enrollment_id);
+        return;
+      }
+
+      // Load Razorpay script for paid sessions
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         toast.error('Failed to load payment gateway');
@@ -213,8 +238,17 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
             </div>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-indigo-600">₹199</p>
-            <p className="text-xs text-gray-500">One-time payment</p>
+            {session.is_free || session.price === 0 ? (
+              <>
+                <p className="text-2xl font-bold text-green-600">FREE</p>
+                <p className="text-xs text-gray-500">No payment required</p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-indigo-600">₹{session.price}</p>
+                <p className="text-xs text-gray-500">One-time payment</p>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -319,6 +353,8 @@ export function EnrollmentForm({ session, onSuccess, onCancel }: EnrollmentFormP
               </svg>
               Processing...
             </span>
+          ) : session.is_free || session.price === 0 ? (
+            'Confirm Enrollment'
           ) : (
             'Proceed to Payment'
           )}

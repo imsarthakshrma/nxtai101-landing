@@ -6,14 +6,39 @@ import { EnrollmentModal } from "@/components/enrollment-modal"
 import { useRouter } from "next/navigation"
 import React from "react"
 import Link from "next/link"
+import type { Session } from "@/types/database"
 
 export default function HomePage() {
   const router = useRouter();
   const [enrollmentModalOpen, setEnrollmentModalOpen] = React.useState(false);
+  const [sparkSession, setSparkSession] = React.useState<Session | null>(null);
+  const [loadingPrice, setLoadingPrice] = React.useState(true);
 
   function handleEnrollmentSuccess(enrollmentId: string) {
     router.push(`/success?id=${enrollmentId}`);
   }
+
+  // Fetch the next available Spark 101 session
+  React.useEffect(() => {
+    async function fetchSparkSession() {
+      try {
+        const res = await fetch('/api/sessions/available');
+        const data = await res.json();
+        if (data.success && data.sessions) {
+          // Find the first Spark 101 session
+          const spark = data.sessions.find((s: Session) => s.session_type === 'spark101');
+          if (spark) {
+            setSparkSession(spark);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch session:', error);
+      } finally {
+        setLoadingPrice(false);
+      }
+    }
+    fetchSparkSession();
+  }, []);
   React.useEffect(() => {
     const observerOptions = {
       threshold: 0.1,
@@ -254,7 +279,17 @@ export default function HomePage() {
               <p className="text-indigo-600 font-medium mb-4">The AI Awakening Session</p>
               <div className="mb-6">
                 <p className="text-sm text-gray-600 mb-1">Duration: 60–75 mins (Live, interactive)</p>
-                <p className="text-3xl font-medium text-gray-900">₹199</p>
+                {loadingPrice ? (
+                  <p className="text-3xl font-medium text-gray-400 animate-pulse">Loading...</p>
+                ) : sparkSession ? (
+                  sparkSession.is_free || sparkSession.price === 0 ? (
+                    <p className="text-3xl font-medium text-green-600">FREE</p>
+                  ) : (
+                    <p className="text-3xl font-medium text-gray-900">₹{sparkSession.price}</p>
+                  )
+                ) : (
+                  <p className="text-3xl font-medium text-gray-900">₹199</p>
+                )}
               </div>
               <div className="mb-6">
                 <p className="font-semibold text-gray-900 mb-3">You&apos;ll Learn:</p>
