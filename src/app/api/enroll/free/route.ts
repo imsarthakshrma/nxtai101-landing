@@ -16,10 +16,21 @@ interface FreeEnrollmentResult {
     company: string | null;
     linkedin_url: string | null;
     razorpay_order_id: string;
+    razorpay_payment_id: string | null;
+    razorpay_signature: string | null;
     amount_paid: number;
     currency: string;
     payment_status: 'success';
+    email_sent: boolean;
+    email_sent_at: string | null;
+    confirmation_email_id: string | null;
     enrolled_at: string;
+    payment_verified_at: string | null;
+    utm_source: string | null;
+    utm_medium: string | null;
+    utm_campaign: string | null;
+    created_at: string;
+    updated_at: string;
   };
 }
 

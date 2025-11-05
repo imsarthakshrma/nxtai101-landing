@@ -103,7 +103,7 @@ BEGIN
       updated_at = NOW()
   WHERE id = p_session_id;
 
-  -- Fetch the created enrollment data
+  -- Fetch the created enrollment data with all fields
   SELECT jsonb_build_object(
     'id', e.id,
     'session_id', e.session_id,
@@ -113,10 +113,21 @@ BEGIN
     'company', e.company,
     'linkedin_url', e.linkedin_url,
     'razorpay_order_id', e.razorpay_order_id,
+    'razorpay_payment_id', e.razorpay_payment_id,
+    'razorpay_signature', e.razorpay_signature,
     'amount_paid', e.amount_paid,
     'currency', e.currency,
     'payment_status', e.payment_status,
-    'enrolled_at', e.enrolled_at
+    'email_sent', e.email_sent,
+    'email_sent_at', e.email_sent_at,
+    'confirmation_email_id', e.confirmation_email_id,
+    'enrolled_at', e.enrolled_at,
+    'payment_verified_at', e.payment_verified_at,
+    'utm_source', e.utm_source,
+    'utm_medium', e.utm_medium,
+    'utm_campaign', e.utm_campaign,
+    'created_at', e.created_at,
+    'updated_at', e.updated_at
   ) INTO v_enrollment_data
   FROM enrollments e
   WHERE e.id = v_enrollment_id;
