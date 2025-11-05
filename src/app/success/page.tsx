@@ -66,7 +66,7 @@ function SuccessContent() {
 
         {/* Success Message */}
         <h1 className="font-instrument-serif text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-          Payment Successful!
+          Enrollment Successful!
         </h1>
         <p className="text-2xl md:text-3xl text-gray-600 mb-12">
           You&apos;re enrolled in Spark 101
